@@ -1,3 +1,10 @@
+'''
+UNet implementation based off of the TernausNet Architecture.
+
+TernausNet: U-Net with VGG11 Encoder Pre-Trained on ImageNet for Image Segmentation
+https://arxiv.org/abs/1801.05746
+'''
+
 import torch
 import torch.nn as nn
 from torchvision import models
