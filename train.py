@@ -9,9 +9,7 @@ import os
 import sys
 import argparse
 import time
-
-
-
+import datetime as dt
 
 
 def train(model, dataloader, criterion, optimizer, num_epochs, ckpt_path=None):
@@ -30,7 +28,7 @@ def train(model, dataloader, criterion, optimizer, num_epochs, ckpt_path=None):
         min_loss = ckpt['loss']
 
     for epoch in range(num_epochs):
-        print('Epoch {}/{}'.format(epoch, num_epochs - 1))
+        print('{} -- Epoch {}/{}'.format(dt.datetime.now(), epoch, num_epochs - 1))
         print('-' * 11)
 
         running_loss = 0.0
@@ -62,8 +60,8 @@ def train(model, dataloader, criterion, optimizer, num_epochs, ckpt_path=None):
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-                'loss': epoch_loss
-            }, './checkpoints/unet.tar')
+                'loss': epoch_loss,
+            }, './'+ckpt_path+'/unet.tar')
 
         print()
 
@@ -75,12 +73,12 @@ def train(model, dataloader, criterion, optimizer, num_epochs, ckpt_path=None):
 
 def load_data(path):
     input_transform = transforms.Compose([
-        transforms.Resize((256, 256)),
+        # transforms.Resize((256, 256)),
         transforms.ToTensor()
     ])
 
     output_transform = transforms.Compose([
-        transforms.Resize((256, 256), Image.NEAREST),
+        # transforms.Resize((256, 256), Image.NEAREST),
         PILToLongTensor()
     ])
 
@@ -112,9 +110,9 @@ def main():
         sys.exit('Specified checkpoint cannot be found')
 
     dataset = load_data(args.path)
-    sampler = torch.utils.data.SubsetRandomSampler(np.arange(10))
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=sampler)
-    # dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    # sampler = torch.utils.data.SubsetRandomSampler(np.arange(10))
+    # dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=sampler)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
     model = UNet(num_classes=len(datasets.Cityscapes.classes))
     set_parameter_required_grad(model, True)

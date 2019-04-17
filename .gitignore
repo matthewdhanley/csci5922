@@ -1,0 +1,6 @@
+cityscapes/
+chkpt/
+checkpoints/
+__pycache__/
+.idea/
+models/*.tar
