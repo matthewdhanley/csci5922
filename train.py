@@ -11,9 +11,15 @@ import argparse
 import time
 
 
+
+
+
 def train(model, dataloader, criterion, optimizer, num_epochs, ckpt_path=None):
     since = time.time()
     min_loss = float('inf')
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(device)
+    model.to(device)
 
     if ckpt_path is not None:
         print('Resuming training from ckeckpoint...')
@@ -31,7 +37,7 @@ def train(model, dataloader, criterion, optimizer, num_epochs, ckpt_path=None):
 
         # Iterate over data.
         for inputs, labels in dataloader:
-
+            inputs, labels = inputs.to(device), labels.to(device)
             # zero the parameter gradients
             optimizer.zero_grad()
 
@@ -108,7 +114,7 @@ def main():
     dataset = load_data(args.path)
     sampler = torch.utils.data.SubsetRandomSampler(np.arange(10))
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=sampler)
-    #dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    # dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
     model = UNet(num_classes=len(datasets.Cityscapes.classes))
     set_parameter_required_grad(model, True)
