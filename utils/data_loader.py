@@ -33,8 +33,11 @@ def load_data(path, resize=True):
             PILToLongTensor()
         ])
 
-    dataset = datasets.Cityscapes(path, split='train', mode='fine',
-                                  target_type='semantic', transform=input_transform,
+    dataset = datasets.Cityscapes(path,
+                                  split='train',
+                                  mode='fine',
+                                  target_type='semantic',
+                                  transform=input_transform,
                                   target_transform=output_transform)
 
     return dataset

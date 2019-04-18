@@ -6,19 +6,23 @@ import datetime as dt
 def train(model, dataloader, criterion, optimizer, num_epochs, checkpoint_path=None):
     since = time.time()
     min_loss = float('inf')
+
+    # set the device to gpu if possible
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print("Training Device: {}".format(device))
+    print("Training Device: {}\n".format(device))
     model.to(device)
 
     if checkpoint_path is not None:
         print('Resuming training from ckeckpoint...')
-        ckpt = torch.load(checkpoint_path)
-        model.load_state_dict(ckpt['model_state_dict'])
-        optimizer.load_state_dict(ckpt['optimizer_state_dict'])
-        epoch = ckpt['epoch']
-        min_loss = ckpt['loss']
+        checkpoint = torch.load(checkpoint_path)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_epoch = checkpoint['epoch']
+        min_loss = checkpoint['loss']
+    else:
+        start_epoch = 0
 
-    for epoch in range(num_epochs):
+    for epoch in range(start_epoch, num_epochs):
         print('{} -- Epoch {}/{}'.format(dt.datetime.now(), epoch, num_epochs - 1))
         print('-' * 11)
 
@@ -27,6 +31,7 @@ def train(model, dataloader, criterion, optimizer, num_epochs, checkpoint_path=N
         # Iterate over data.
         for inputs, labels in dataloader:
             inputs, labels = inputs.to(device), labels.to(device)
+
             # zero the parameter gradients
             optimizer.zero_grad()
 
