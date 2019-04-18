@@ -3,6 +3,34 @@ from utils.data_transforms import PILToLongTensor
 from PIL import Image
 
 
+def input_image_transform(resize_size):
+    if resize_size != 0:
+        transform = transforms.Compose([
+            transforms.Resize((resize_size, resize_size)),
+            transforms.ToTensor()
+        ])
+    else:
+        transforms.Compose([
+            transforms.ToTensor()
+        ])
+
+    return transform
+
+
+def output_image_transform(resize_size):
+    if resize_size != 0:
+        transform = transforms.Compose([
+            transforms.Resize((resize_size, resize_size), Image.NEAREST),
+            PILToLongTensor()
+        ])
+    else:
+        transform = transforms.Compose([
+            PILToLongTensor()
+        ])
+
+    return transform
+
+
 def load_data(path, resize=True):
     """
     Loads Cityscapes data from path input via command line.
@@ -14,24 +42,13 @@ def load_data(path, resize=True):
     if resize:
         resize_size = 256
         print("Resizing images to {}x{}".format(resize_size, resize_size))
-        input_transform = transforms.Compose([
-            transforms.Resize((resize_size, resize_size)),
-            transforms.ToTensor()
-        ])
 
-        output_transform = transforms.Compose([
-            transforms.Resize((resize_size, resize_size), Image.NEAREST),
-            PILToLongTensor()
-        ])
+        input_transform = input_image_transform(resize_size)
+        output_transform = output_image_transform(resize_size)
 
     else:
-        input_transform = transforms.Compose([
-            transforms.ToTensor()
-        ])
-
-        output_transform = transforms.Compose([
-            PILToLongTensor()
-        ])
+        input_transform = input_image_transform(0)
+        output_transform = output_image_transform(0)
 
     dataset = datasets.Cityscapes(path,
                                   split='train',
