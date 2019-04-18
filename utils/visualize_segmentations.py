@@ -4,19 +4,26 @@ import os
 import argparse
 import sys
 from PIL import Image
-from data_transforms import PILToLongTensor, LongTensorToRGBPIL
 
-sys.path.insert(0, '../models')
-from UNet import UNet
+sys.path.insert(0, '../')
+
+from utils.data_loader import input_image_transform, output_image_transform
+from utils.data_transforms import PILToLongTensor, LongTensorToRGBPIL
+from models.UNet import UNet
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def get_segmentation(model, img_name):
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
-    #im = Image.open(img_name)
-    #im.show()
-    #image_tensor = tranforms.ToTensor()(im)
-    #print(image_tensor)
-    pass
+
+    im = Image.open(img_name)
+    image_tensor = input_image_transform(256)(im)
+    image_tensor = image_tensor.unsqueeze_(0)
+    image_tensor = image_tensor.to(device)
+
+    segmentation_data = model(image_tensor)
+    segmentation_data = segmentation_data.squeeze_(0)
+    return segmentation_data
 
 
 def save_segmentation(segmentation_tensor):
@@ -51,7 +58,7 @@ def main():
         imgs.append(args.img_path)
 
 
-    checkpoint = torch.load(checkpoint_path)
+    checkpoint = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
     model = UNet(num_classes=len(datasets.Cityscapes.classes))
     model.load_state_dict(checkpoint['model_state_dict'])
 
