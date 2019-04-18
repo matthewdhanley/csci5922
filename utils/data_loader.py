@@ -10,7 +10,7 @@ def input_image_transform(resize_size):
             transforms.ToTensor()
         ])
     else:
-        transforms.Compose([
+        transform = transforms.Compose([
             transforms.ToTensor()
         ])
 
