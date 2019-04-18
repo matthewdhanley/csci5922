@@ -4,37 +4,29 @@ Created on Wed Apr 17 14:18:13 2019
 
 @author: Scott Lucas Young
 """
+import sys
 import torch
 import torch.nn as nn
-import torch.utils.model_zoo as model_zoo
-from torchvision import transforms, datasets
+from torchvision import transforms, datasets, models
 import numpy as np
 from PIL import Image
 
 
-class VGG(nn.Module):
+class VGGmod(nn.Module):
 
-    def __init__(self, features, num_classes=1000, init_weights=True):
-        super(VGG, self).__init__()
-        self.features = features
-        self.avgpool = nn.AdaptiveAvgPool2d((7, 7))
-        self.classifier = nn.Sequential(
-            nn.Linear(512 * 7 * 7, 4096),
-            nn.ReLU(True),
-            nn.Dropout(),
-            nn.Linear(4096, 4096),
-            nn.ReLU(True),
-            nn.Dropout(),
-            nn.Linear(4096, num_classes),
-        )
-        if init_weights:
-            self._initialize_weights()
+    def __init__(self, num_classes=1000, init_weights=True):
+        super().__init__()
+
+        self.num_classes = num_classes
+
+        self.features = models.vgg11(pretrained=True).features
 
     def forward(self, x):
-        x = self.features(x)
-        x = self.avgpool(x)
-        x = x.view(x.size(0), -1)
-        x = self.classifier(x)
+        self.activs = []
+        for layer in self.features:
+            self.activs.append(x)
+            x = layer(x)
+        self.activs.append(x)
         return x
 
     def _initialize_weights(self):
@@ -83,34 +75,6 @@ class PILToLongTensor(object):
         return img.transpose(0, 1).transpose(0,2).contiguous().long().squeeze_()
 
 
-def make_layers(cfg, batch_norm=False):
-    layers = []
-    in_channels = 3
-    for v in cfg:
-        if v == 'M':
-            layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
-        else:
-            conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1)
-            if batch_norm:
-                layers += [conv2d, nn.BatchNorm2d(v), nn.ReLU(inplace=True)]
-            else:
-                layers += [conv2d, nn.ReLU(inplace=True)]
-            in_channels = v
-    return nn.Sequential(*layers)
-
-
-def vgg11(pretrained=False, **kwargs):
-    """VGG 11-layer model (configuration "A")
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-    """
-    if pretrained:
-        kwargs['init_weights'] = False
-    model = VGG(make_layers([64, 'M', 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M']), **kwargs)
-    if pretrained:
-        model.load_state_dict(model_zoo.load_url('https://download.pytorch.org/models/vgg11-bbd30ac9.pth'))
-    return model
-
 
 def load_data(path):
     input_transform = transforms.Compose([
@@ -133,11 +97,13 @@ def load_data(path):
 
 
 def main():
-    net = vgg11(True)
-    dataset = load_data("data/")
+    net = VGGmod()
+    dataset = load_data("Cityscapes/")
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False)
     for inp, _ in dataloader:
         output = net(inp)
+        print(output)
+        print(net.activs)
     
     
 if __name__ == '__main__':
