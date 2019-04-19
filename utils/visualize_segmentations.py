@@ -39,15 +39,15 @@ class CityscapeSegmentationVis():
         image_tensor = image_tensor.to(self.device)
 
         segmentation_data = self.model(image_tensor)
-        predicted_classes = torch.argmax(segmentation_data, dim=1)
-        predicted_classes = predicted_classes.squeeze_(0)
+        class_tensor = torch.argmax(segmentation_data, dim=1)
+        class_tensor = class_tensor.squeeze_(0)
 
-        result = self.segmentation_transform(predicted_classes)
-        result.show()
-        return result
+        return class_tensor
 
-    def save_segmentation(self, segmentation_tensor):
-        pass
+    def save_segmentation(self, class_tensor, out_location):
+        image = self.segmentation_transform(class_tensor)
+        image.save(out_location)
+        return
 
 
 def main():
@@ -58,8 +58,13 @@ def main():
     parser.add_argument('img_path',
                         type=str,
                         help='Path to image or directory containing images to segment')
+    parser.add_argument('-r', '--resize',
+                        type=int,
+                        default=0,
+                        help='Resize size of the image prior to segmentation')
     parser.add_argument('-o', '--out',
                         type=str,
+                        default='./',
                         help='Path to write segmentation visualizations to')
     args = parser.parse_args()
 
@@ -83,11 +88,13 @@ def main():
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
 
-    visualizer = CityscapeSegmentationVis(model, input_image_transform(256))
+    visualizer = CityscapeSegmentationVis(model, input_image_transform(args.resize))
 
     for img in imgs:
-        segmentation_tensor = visualizer.get_predicted_segmentation(img)
-        visualizer.save_segmentation(segmentation_tensor)
+        image_name = 'segmentation_' + img.split('/')[-1]
+        out_location = os.path.join(args.out, image_name)
+        class_tensor = visualizer.get_predicted_segmentation(img)
+        visualizer.save_segmentation(class_tensor, out_location)
 
 if __name__=='__main__':
     main()
