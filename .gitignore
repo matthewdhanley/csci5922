@@ -1,1 +1,10 @@
+<<<<<<< HEAD
 Cityscapes/
+=======
+cityscapes/
+chkpt/
+checkpoints/
+__pycache__/
+.idea/
+models/*.tar
+>>>>>>> training_script
