@@ -10,6 +10,9 @@ from torch.autograd import Variable
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+import argparse
+import sys
+import os
 
 from models.UNet import UNet
 
@@ -54,14 +57,17 @@ class LayerActivationAnalysis():
         return np.unique(np.nonzero(filter_activations)[0])
 
     def get_max_activating_image(self, filter_index, initial_img_size=56, upscaling_steps=12, upscaling_factor=1.2, lr=0.01, update_steps=15, verbose=False):
-        layer_activations = LayerActivations(self.layer)
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.model.to(device)
 
+        layer_activations = LayerActivations(self.layer)
         size = initial_img_size
         image = (np.random.uniform(0, 255, size=(3,size,size)) / 255).astype(np.float32, copy=False)
 
         for i in range(upscaling_steps):
             image_tensor = torch.from_numpy(image).expand(1, -1, -1, -1)
             image_tensor = Variable(image_tensor, requires_grad=True)
+            image_tensor = image_tensor.to(device)
 
             if not image_tensor.grad is None:
                 image_tensor.grad.zero_()
@@ -89,16 +95,42 @@ class LayerActivationAnalysis():
 
 
 if __name__=='__main__':
-    checkpoint = torch.load('models/unet_100.tar', map_location=lambda storage, loc: storage)
-    model = UNet(num_classes=len(datasets.Cityscapes.classes), encoder_only=True)
-    model.load_state_dict(checkpoint['model_state_dict'])
+    parser = argparse.ArgumentParser(description='Analyze encoder module filters of a trained model')
+
+    parser.add_argument('--unet',
+                        action='store_true',
+                        help='Analyze UNet encoder')
+
+    parser.add_argument('--ckpt',
+                        required='--unet' in sys.argv,
+                        type=str,
+                        help='Path to UNet model checkpoint')
+
+    parser.add_argument('--vgg11',
+                        action='store_true',
+                        help='Analyze VGG11 encoder (pre-trained on ImageNet)')
+
+    parser.add_argument('-o', '--out',
+                        type=str,
+                        default='./',
+                        help='Path to write segmentation visualizations to')
+    args = parser.parse_args()
+
+    if args.unet:
+        if not os.path.exists(args.ckpt):
+            sys.exit('Specified checkpoint cannot be found')
+
+        checkpoint = torch.load('models/unet_100.tar', map_location=lambda storage, loc: storage)
+        model = UNet(num_classes=len(datasets.Cityscapes.classes), encoder_only=True)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        layer = model.encoder6
+    elif args.vgg11:
+        model = models.vgg11(pretrained=True)
+        layer = list(model.children())[0][11]
+    else:
+        sys.exit('No model provided, please specify --unet or --vgg11 to analyze the UNet or VGG11 encoder, respectively')
+
     model.eval()
-    layer = model.encoder6
-
-    #model = models.vgg11(pretrained=True)
-    #layer = list(model.children())[0][11]
-    #model.eval()
-
     for param in model.parameters():
         param.requires_grad_(False)
 
