@@ -16,6 +16,18 @@ import os
 
 from models.UNet import UNet
 
+# Maps an encoder layer index to the index of the child module associated with
+# that layer in the VGG11 model
+vgg11_layer_dict = {1:0, 2:3, 3:6, 4:8, 5:11, 6:13, 7:16, 8:18}
+
+def get_layer(model, layer_index):
+    if isinstance(model, UNet):
+        layer = model.get_encoder_layer(layer_index)
+    elif isinstance(model, models.vgg.VGG):
+        child_index = vgg11_layer_dict[layer_index]
+        layer = list(model.children())[0][child_index]
+    return layer
+
 def upscale_image(image, upscale_size):
     # Upscales an image with dimensions (3,h,w) to (3,upscale_size,upscale_size)
     image = np.transpose(image, axes=(1,2,0))
@@ -101,7 +113,7 @@ if __name__=='__main__':
                         action='store_true',
                         help='Analyze UNet encoder')
 
-    parser.add_argument('--ckpt',
+    parser.add_argument('--checkpoint',
                         required='--unet' in sys.argv,
                         type=str,
                         help='Path to UNet model checkpoint')
@@ -110,6 +122,12 @@ if __name__=='__main__':
                         action='store_true',
                         help='Analyze VGG11 encoder (pre-trained on ImageNet)')
 
+    parser.add_argument('--layer',
+                        type=int,
+                        required=True,
+                        choices=[1,2,3,4,5,6,7,8],
+                        help='Layer of encoder to analyze')
+
     parser.add_argument('-o', '--out',
                         type=str,
                         default='./',
@@ -117,22 +135,22 @@ if __name__=='__main__':
     args = parser.parse_args()
 
     if args.unet:
-        if not os.path.exists(args.ckpt):
+        if not os.path.exists(args.checkpoint):
             sys.exit('Specified checkpoint cannot be found')
 
-        checkpoint = torch.load('models/unet_100.tar', map_location=lambda storage, loc: storage)
+        checkpoint = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
         model = UNet(num_classes=len(datasets.Cityscapes.classes), encoder_only=True)
         model.load_state_dict(checkpoint['model_state_dict'])
-        layer = model.encoder6
     elif args.vgg11:
         model = models.vgg11(pretrained=True)
-        layer = list(model.children())[0][11]
     else:
         sys.exit('No model provided, please specify --unet or --vgg11 to analyze the UNet or VGG11 encoder, respectively')
 
     model.eval()
     for param in model.parameters():
         param.requires_grad_(False)
+
+    layer = get_layer(model, args.layer)
 
     analyzer = LayerActivationAnalysis(model, layer)
 

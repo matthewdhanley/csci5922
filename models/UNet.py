@@ -61,6 +61,12 @@ class UNet(nn.Module):
             nn.Conv2d(32, self.num_classes, kernel_size=1),
         )
 
+    def get_encoder_layer(self, layer_index):
+        encoder_layers = [self.encoder1, self.encoder2, self.encoder3,
+                          self.encoder4, self.encoder5, self.encoder6,
+                          self.encoder7, self.encoder8]
+        return encoder_layers[layer_index-1]
+
     def forward(self, X):
         '''
         Encode
