@@ -32,10 +32,11 @@ class UNetDecoderModule(nn.Module):
 
 
 class UNet(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, encoder_only=False):
         super().__init__()
 
         self.num_classes = num_classes
+        self.encoder_only = encoder_only
 
         vgg11_encoder = models.vgg11(pretrained=False).features
         self.encoder1 = vgg11_encoder[0]
@@ -86,6 +87,9 @@ class UNet(nn.Module):
         # Skip connection
         encoder8_out = self.encoder_act(self.encoder8(encoder7_out))
         encoder8_out_pooled = self.max_pool(encoder8_out)
+
+        if self.encoder_only:
+            return encoder8_out_pooled
 
         '''
         Decode
