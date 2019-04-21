@@ -20,7 +20,7 @@ def get_cli_arguments():
                         choices=['unet', 'vggmod'],
                         default=None,
                         help="Specifiy which model to use to save activations. unet uses the custom UNet, vggmod uses"
-                             "the pre-trained VGG11 model")
+                             "the pre-trained VGG11 model. Use --checkpoint to specify a pretrained model for UNet.")
 
     parser.add_argument('--checkpoint',
                         type=str,
