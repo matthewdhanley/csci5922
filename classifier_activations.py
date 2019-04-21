@@ -7,12 +7,13 @@ import pickle
 
 def main():
     net = VGGmod()
-    dataset = load_data("Cityscapes/")
+    dataset = load_data("datamini/")
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False)
     activs = []
     for inp, _ in dataloader:
         net(inp)
         activs.append(net.activs)
+    print("done")
     file = open("classifier_activations", "wb")
     pickle.dump(activs, file)
     file.close()
