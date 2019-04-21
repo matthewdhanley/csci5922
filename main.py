@@ -7,7 +7,9 @@ from torchvision import datasets
 from utils.args import get_cli_arguments
 from utils.data_loader import load_data
 from models.UNet import UNet
+from models.VGGmod import VGGmod
 from train import train
+from retrieve_activations import retrieve_activations
 import numpy as np
 
 
@@ -34,6 +36,25 @@ def main():
         optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
         train(model, dataloader, criterion, optimizer, num_epochs=args.epochs, checkpoint_path=args.checkpoint)
         return
+
+    if args.mode == 'activations':
+        if args.model is None:
+            sys.exit("Must specify model to use with --model argument")
+        dataset = load_data(args.path, resize=~args.no_resize)
+        if args.subset:
+            sampler = torch.utils.data.SubsetRandomSampler(np.arange(10))
+            dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=sampler)
+        else:
+            dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+
+        if args.model == 'unet':
+            model = UNet(num_classes=len(datasets.Cityscapes.classes))
+        else:
+            model = VGGmod()
+
+        set_parameter_required_grad(model, True)
+
+        retrieve_activations(model, dataloader)
 
 
 def set_parameter_required_grad(model, requires_grad=True):
