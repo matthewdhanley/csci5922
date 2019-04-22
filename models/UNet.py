@@ -13,7 +13,6 @@ from torchvision import models
 class UNetDecoderModule(nn.Module):
     def __init__(self, in_channels, in_channels_ct, out_channels):
         super().__init__()
-
         self.in_channels = in_channels
         self.in_channels_ct = in_channels_ct
         self.out_channels = out_channels
@@ -34,6 +33,7 @@ class UNetDecoderModule(nn.Module):
 class UNet(nn.Module):
     def __init__(self, num_classes, encoder_only=False):
         super().__init__()
+        self.name = "UNet"
 
         self.num_classes = num_classes
         self.encoder_only = encoder_only
@@ -106,4 +106,19 @@ class UNet(nn.Module):
         decoder3_out = self.decoder3(torch.cat([decoder4_out, encoder4_out], 1))
         decoder2_out = self.decoder2(torch.cat([decoder3_out, encoder2_out], 1))
         decoder1_out = self.decoder1(torch.cat([decoder2_out, encoder1_out], 1))
+        self.activs = [X, encoder1_out, encoder1_out_pooled,
+                       encoder2_out, encoder2_out_pooled,
+                       encoder3_out,
+                       encoder4_out, encoder4_out_pooled,
+                       encoder5_out,
+                       encoder6_out, encoder6_out_pooled,
+                       encoder7_out,
+                       encoder8_out, encoder8_out_pooled,
+                       decoder6_out,
+                       decoder5_out,
+                       decoder4_out,
+                       decoder3_out,
+                       decoder2_out,
+                       decoder1_out]
+
         return decoder1_out

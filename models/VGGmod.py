@@ -7,7 +7,7 @@ class VGGmod(nn.Module):
 
     def __init__(self, num_classes=1000, init_weights=True):
         super().__init__()
-
+        self.name = "VGGmod"
         self.num_classes = num_classes
 
         self.features = models.vgg11(pretrained=True).features
