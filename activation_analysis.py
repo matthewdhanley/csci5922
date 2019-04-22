@@ -35,6 +35,25 @@ def upscale_image(image, upscale_size):
     image = np.transpose(image, axes=(2,0,1))
     return image
 
+def save_image(image_array, destination):
+    plt.figure()
+    plt.imshow(image_array)
+    plt.axis('off')
+    plt.savefig(destination, transparent=True, bbox_inches='tight', pad_inches=0)
+    plt.close()
+
+def save_image_grid(image_arrays, destination, width=16, height=16):
+    fig = plt.figure(figsize=(width, height))
+    rows = np.ceil(np.sqrt(len(image_arrays)))
+    cols = np.ceil(np.sqrt(len(image_arrays)))
+    for i, img in enumerate(image_arrays):
+        fig.add_subplot(rows, cols, i+1)
+        plt.imshow(img)
+        plt.axis('off')
+        plt.subplots_adjust(wspace=0, hspace=0.06)
+    plt.savefig(destination, transparent=True, bbox_inches='tight', pad_inches=0)
+    plt.close()
+
 
 class LayerActivations():
     def __init__(self, layer):
@@ -75,7 +94,6 @@ class LayerActivationAnalysis():
         layer_activations = LayerActivations(self.layer)
         size = initial_img_size
         image = (np.random.uniform(0, 255, size=(3,size,size)) / 255).astype(np.float32, copy=False)
-
         for i in range(upscaling_steps):
             image_tensor = torch.from_numpy(image).expand(1, -1, -1, -1)
             image_tensor = Variable(image_tensor, requires_grad=True)
@@ -90,7 +108,7 @@ class LayerActivationAnalysis():
             for n in range(update_steps):
                 optimizer.zero_grad()
                 _ = self.model(image_tensor)
-                loss = -1 * (layer_activations.activations[0, filter_index].mean())
+                loss = -1 * (layer_activations.activations[0, filter_index].norm())
                 if verbose and (n % 5 == 0):
                     print('Loss at upscale step {}/{}, update {}/{}: {}'
                             .format(i, upscaling_steps-1, n, update_steps-1, loss))
@@ -128,6 +146,15 @@ if __name__=='__main__':
                         choices=[1,2,3,4,5,6,7,8],
                         help='Layer of encoder to analyze')
 
+    parser.add_argument('--channels',
+                        type=int,
+                        nargs='*',
+                        help='Layer output channels to visualize')
+
+    parser.add_argument('--grid',
+                        action='store_true',
+                        help='Visualize multiple output channels as a grid')
+
     parser.add_argument('-o', '--out',
                         type=str,
                         default='./',
@@ -141,20 +168,37 @@ if __name__=='__main__':
         checkpoint = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
         model = UNet(num_classes=len(datasets.Cityscapes.classes), encoder_only=True)
         model.load_state_dict(checkpoint['model_state_dict'])
+        model_name = 'unet'
     elif args.vgg11:
         model = models.vgg11(pretrained=True)
+        model_name = 'vgg11'
     else:
         sys.exit('No model provided, please specify --unet or --vgg11 to analyze the UNet or VGG11 encoder, respectively')
 
     model.eval()
     for param in model.parameters():
         param.requires_grad_(False)
-
     layer = get_layer(model, args.layer)
 
     analyzer = LayerActivationAnalysis(model, layer)
 
-    img = analyzer.get_max_activating_image(6, verbose=True)
-    plt.figure(figsize=(7,7))
-    plt.imshow(img)
-    plt.show()
+    if args.grid:
+        imgs = []
+        if args.channels is not None:
+            channels = '-'.join(str(channel_id) for channel_id in args.channels)
+            output_dest = os.path.join(args.out, '{}_layer{}_channels{}.png'.format(model_name, args.layer, channels))
+            imgs = []
+            for channel in args.channels:
+                img = analyzer.get_max_activating_image(channel, verbose=True)
+                imgs.append(img)
+        else:
+            print('Get random sample of activated channels')
+            #grid(-1)
+        save_image_grid(imgs, output_dest)
+
+    elif args.channels is not None:
+        for channel in args.channels:
+            img = analyzer.get_max_activating_image(channel, verbose=True)
+
+            output_dest = os.path.join(args.out, '{}_layer{}_channel{}.png'.format(model_name, args.layer, channel))
+            save_image(img, output_dest)
