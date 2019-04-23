@@ -159,6 +159,10 @@ if __name__=='__main__':
                         type=str,
                         default='./',
                         help='Path to write segmentation visualizations to')
+
+    parser.add_argument('-v', '--verbose',
+                        action='store_true',
+                        help='Output status of image optimization processes')
     args = parser.parse_args()
 
     if args.unet:
@@ -175,6 +179,7 @@ if __name__=='__main__':
     else:
         sys.exit('No model provided, please specify --unet or --vgg11 to analyze the UNet or VGG11 encoder, respectively')
 
+
     model.eval()
     for param in model.parameters():
         param.requires_grad_(False)
@@ -183,22 +188,34 @@ if __name__=='__main__':
     analyzer = LayerActivationAnalysis(model, layer)
 
     if args.grid:
-        imgs = []
         if args.channels is not None:
-            channels = '-'.join(str(channel_id) for channel_id in args.channels)
-            output_dest = os.path.join(args.out, '{}_layer{}_channels{}.png'.format(model_name, args.layer, channels))
-            imgs = []
-            for channel in args.channels:
-                img = analyzer.get_max_activating_image(channel, verbose=True)
-                imgs.append(img)
+            channels = args.channels
         else:
-            print('Get random sample of activated channels')
-            #grid(-1)
+            # Get a random sample of 9 activated channels
+            channels = analyzer.get_activated_filter_indices()
+            np.random.shuffle(channels)
+            channels = channels[:9]
+
+        imgs = []
+        for i, channel in enumerate(channels):
+            if args.verbose:
+                print('Generating image {} of {}...'.format(i+1, len(channels)))
+            img = analyzer.get_max_activating_image(channel, verbose=args.verbose)
+            imgs.append(img)
+        channel_string = '-'.join(str(channel_id) for channel_id in channels)
+        output_dest = os.path.join(args.out, '{}_layer{}_channels{}.png'.format(model_name, args.layer, channel_string))
         save_image_grid(imgs, output_dest)
 
     elif args.channels is not None:
         for channel in args.channels:
-            img = analyzer.get_max_activating_image(channel, verbose=True)
+            img = analyzer.get_max_activating_image(channel, verbose=args.verbose)
 
             output_dest = os.path.join(args.out, '{}_layer{}_channel{}.png'.format(model_name, args.layer, channel))
             save_image(img, output_dest)
+
+    else:
+        activated_channels = analyzer.get_activated_filter_indices()
+        print('Output channels in conv layer {} activated by random image input:'.format(args.layer))
+        print(activated_channels)
+        print()
+        print('(Total of {} activated channels)'.format(len(activated_channels)))
