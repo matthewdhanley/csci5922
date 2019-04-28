@@ -9,6 +9,7 @@ from utils.data_loader import load_data
 from models.UNet import UNet
 from models.VGGmod import VGGmod
 from train import train
+from match_channels import match_channels
 from retrieve_activations import retrieve_activations
 import numpy as np
 
@@ -42,7 +43,7 @@ def main():
             sys.exit("Must specify model to use with --model argument")
         dataset = load_data(args.path, resize=~args.no_resize)
         if args.subset:
-            sampler = torch.utils.data.SubsetRandomSampler(np.arange(10))
+            sampler = torch.utils.data.SubsetRandomSampler(np.arange(50))
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=sampler)
         else:
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
@@ -55,12 +56,25 @@ def main():
             else:
                 print("NOTE: Getting activations for untrained network. Specified a pretrained model with the "
                       "--checkpoint argument.")
+        elif args.model == 'vggmod':
+            model = VGGmod()
         else:
+            model = UNet(num_classes=len(datasets.Cityscapes.classes))
+            if args.checkpoint:
+                checkpoint = torch.load(args.checkpoint)
+                model.load_state_dict(checkpoint['model_state_dict'])
+            set_parameter_required_grad(model, True)
+            retrieve_activations(model, dataloader)
             model = VGGmod()
 
         set_parameter_required_grad(model, True)
 
         retrieve_activations(model, dataloader)
+
+    if args.mode == 'compare_activations':
+        file_1 = os.path.join(args.path, 'VGGmod_activations')
+        file_2 = os.path.join(args.path, 'UNet_activations')
+        match_channels(file_1, file_2)
 
 
 def set_parameter_required_grad(model, requires_grad=True):

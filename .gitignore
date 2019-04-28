@@ -1,10 +1,11 @@
-<<<<<<< HEAD
 Cityscapes/
-=======
 cityscapes/
+datamini/
 chkpt/
 checkpoints/
 __pycache__/
 .idea/
 models/*.tar
->>>>>>> training_script
+activations/
+pretrained/
+activation_visualizations/
