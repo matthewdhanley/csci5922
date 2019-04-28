@@ -15,6 +15,9 @@ from models.UNet import UNet
 vgg11_layer_dict = {1:0, 2:3, 3:6, 4:8, 5:11, 6:13, 7:16, 8:18}
 
 def get_conv_layer(model, layer_index):
+    '''
+    Gets the conv layer torch module associated with a given layer index
+    '''
     if isinstance(model, UNet):
         layer = model.get_encoder_layer(layer_index)
     elif isinstance(model, models.vgg.VGG):

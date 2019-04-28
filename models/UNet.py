@@ -50,6 +50,10 @@ class UNet(nn.Module):
         self.encoder_act = vgg11_encoder[1]
         self.max_pool = vgg11_encoder[2]
 
+        self.encoder_layer_dict = {1: self.encoder1, 2: self.encoder2, 3: self.encoder3,
+                                   4: self.encoder4, 5: self.encoder5, 6: self.encoder6,
+                                   7: self.encoder7, 8: self.encoder8}
+
         self.decoder6 = UNetDecoderModule(512, 512, 256)
         self.decoder5 = UNetDecoderModule(256 + self.encoder8.out_channels, 512, 256)
         self.decoder4 = UNetDecoderModule(256 + self.encoder6.out_channels, 512, 128)
@@ -62,10 +66,10 @@ class UNet(nn.Module):
         )
 
     def get_encoder_layer(self, layer_index):
-        encoder_layers = [self.encoder1, self.encoder2, self.encoder3,
-                          self.encoder4, self.encoder5, self.encoder6,
-                          self.encoder7, self.encoder8]
-        return encoder_layers[layer_index-1]
+        '''
+        Gets the convolutional torch module of the encoder, at layer layer_index
+        '''
+        return self.encoder_layer_dict[layer_index]
 
     def forward(self, X):
         '''
