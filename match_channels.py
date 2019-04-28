@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 import torch
 import copy
+from skimage.measure import _structural_similarity as ssim
 
 
 def load_files(fin1, fin2):
@@ -55,3 +56,6 @@ def match_channels(fin1, fin2):
             scores[:, ind[1]] = -float('Inf')
     with open(fin2 + '_matched', mode='wb') as fout:
         pickle.dump(activs_out, fout)
+
+
+
