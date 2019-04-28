@@ -6,3 +6,5 @@ checkpoints/
 __pycache__/
 .idea/
 models/*.tar
+activations/
+pretrained/
