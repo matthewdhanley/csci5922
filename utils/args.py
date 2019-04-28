@@ -34,6 +34,16 @@ def get_cli_arguments():
                         default=0,
                         help='Specify which batch to visualize. Used with \"--mode view_activations\"')
 
+    parser.add_argument('--start_layer',
+                        type=int,
+                        default=0,
+                        help='Specify which layer to begin visualizations. Used with \"--mode view_activations\"')
+
+    parser.add_argument('--stop_layer',
+                        type=int,
+                        default=22,
+                        help='Specify which layer to begin visualizations. Used with \"--mode view_activations\"')
+
     parser.add_argument('--subset',
                         action='store_true',
                         help='Run with a small subset of the data. This will result in faster execution')

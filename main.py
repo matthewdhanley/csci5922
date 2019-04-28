@@ -82,7 +82,10 @@ def main():
                  "and VGG11, run instead with the \"--mode activations\" parameter.")
 
         activs1, activs2 = load_activations(file_1, file_2)
-        visualize_batch(activs1, activs2, args.batch_num)
+        visualize_batch(activs1, activs2,
+                        batch_num=args.batch_num,
+                        start_layer=args.start_layer,
+                        stop_layer=args.stop_layer)
 
     if args.mode == 'compare_activations':
         file_1 = os.path.join(args.path, 'VGGmod_activations')

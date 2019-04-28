@@ -7,7 +7,8 @@ import numpy as np
 from skimage.transform import resize
 
 
-def visualize_batch(activations1, activations2, batch_num, dpi=300, alpha=0.5, cmap="hot"):
+def visualize_batch(activations1, activations2, batch_num,
+                    dpi=300, alpha=0.5, cmap="hot", start_layer=0, stop_layer=22):
     """
     Visualize the activations in activations list. Activations will be saved to subfolders in activation_visualizations/.
     If this directory is not present, it will be created automatically.
@@ -17,6 +18,8 @@ def visualize_batch(activations1, activations2, batch_num, dpi=300, alpha=0.5, c
     :param dpi: dpi used to save figure. Default 300
     :param alpha: Alpha of channel overlay used. Default 0.5
     :param cmap: cmap of overlay used. Default "hot"
+    :param start_layer: Layer to begin visualizations. Default 0
+    :param stop_layer: Layer to stop visualizations. Default 22
     :return: None
     """
     if not os.path.exists('activation_visualizations'):
@@ -26,12 +29,13 @@ def visualize_batch(activations1, activations2, batch_num, dpi=300, alpha=0.5, c
         savedir_base = 'activation_visualizations/img{}_batch{}'.format(i, batch_num)
         if not os.path.exists(savedir_base):
             os.makedirs(savedir_base)
-        for j in range(len(activations1[i])):
+        for j in range(start_layer, stop_layer):
 
             savedir = os.path.join(savedir_base, 'layer{}'.format(j))
             if not os.path.exists(savedir):
                 os.makedirs(savedir)
             for l in range(len(activations1[i][j][batch_num])):
+                print("Batch {} | Image {} | Layer {} | Channel {}".format(batch_num, i, j, l))
                 im1 = activations1[i][j][batch_num][l].detach().numpy()
                 im2 = activations2[i][j][batch_num][l].detach().numpy()
 
@@ -42,12 +46,12 @@ def visualize_batch(activations1, activations2, batch_num, dpi=300, alpha=0.5, c
                 fig.suptitle("Batch {} | Image {} | Layer {} | Channel {}".format(batch_num, i, j, l), fontsize=16)
 
                 ax = plt.subplot(3, 2, 1)
-                ax.set_title(sys.argv[1].split('/')[-1])
+                ax.set_title('activations 1')
 
                 plt.imshow(im1, cmap="gray")
 
                 ax = plt.subplot(3, 2, 2)
-                ax.set_title(sys.argv[2].split('/')[-1])
+                ax.set_title('activations 2')
                 plt.imshow(im2, cmap="gray")
                 plt.axis("off")
 
