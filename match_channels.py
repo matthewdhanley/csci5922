@@ -38,18 +38,10 @@ def match_channels(fin1, fin2):
         root = (np.sqrt(mag_cum1 * mag_cum2))
         root[root <= .00001] = float('Inf')
         scores = dot_cum / root
-        # for j in range(num_images):
-        #     activs_out[j][i] = torch.zeros_like(activations_1[j][i])
-        # print(activations_1[0][0].shape)
-        # print(activs_out[0][0].shape)
 
         while np.max(scores) != -float('Inf'):
             ind = np.unravel_index(np.argmax(scores, axis=None), scores.shape)
             for j in range(num_images):
-                # print(j)
-                # print(i)
-                # print(activs_out[j][i].shape)
-                # print(activations_1[j][i].shape)
                 activs_out[j][i][:, ind[1], :, :] = activations_1[j][i][:, ind[0], :, :]
             scores[ind[0], :] = -float('Inf')
             scores[:, ind[1]] = -float('Inf')

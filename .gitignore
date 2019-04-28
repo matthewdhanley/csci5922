@@ -8,3 +8,4 @@ __pycache__/
 models/*.tar
 activations/
 pretrained/
+activation_visualizations/
