@@ -76,26 +76,35 @@ class UNet(nn.Module):
         Encode
         '''
         # Skip connection
-        encoder1_out = self.encoder_act(self.encoder1(X))
+        e1 = self.encoder1(X)
+        encoder1_out = self.encoder_act(e1)
         encoder1_out_pooled = self.max_pool(encoder1_out)
 
         # Skip connection
-        encoder2_out = self.encoder_act(self.encoder2(encoder1_out_pooled))
+        e2 = self.encoder2(encoder1_out_pooled)
+        encoder2_out = self.encoder_act(e2)
         encoder2_out_pooled = self.max_pool(encoder2_out)
 
-        encoder3_out = self.encoder_act(self.encoder3(encoder2_out_pooled))
+        e3 = self.encoder3(encoder2_out_pooled)
+        encoder3_out = self.encoder_act(e3)
         # Skip connection
-        encoder4_out = self.encoder_act(self.encoder4(encoder3_out))
+        e4 = self.encoder4(encoder3_out)
+        encoder4_out = self.encoder_act(e4)
         encoder4_out_pooled = self.max_pool(encoder4_out)
 
-        encoder5_out = self.encoder_act(self.encoder5(encoder4_out_pooled))
+        e5 = self.encoder5(encoder4_out_pooled)
+        encoder5_out = self.encoder_act(e5)
         # Skip connection
-        encoder6_out = self.encoder_act(self.encoder6(encoder5_out))
+
+        e6 = self.encoder6(encoder5_out)
+        encoder6_out = self.encoder_act(e6)
         encoder6_out_pooled = self.max_pool(encoder6_out)
 
-        encoder7_out = self.encoder_act(self.encoder7(encoder6_out_pooled))
+        e7 = self.encoder7(encoder6_out_pooled)
+        encoder7_out = self.encoder_act(e7)
         # Skip connection
-        encoder8_out = self.encoder_act(self.encoder8(encoder7_out))
+        e8 = self.encoder8(encoder7_out)
+        encoder8_out = self.encoder_act(e8)
         encoder8_out_pooled = self.max_pool(encoder8_out)
 
         if self.encoder_only:
@@ -110,19 +119,14 @@ class UNet(nn.Module):
         decoder3_out = self.decoder3(torch.cat([decoder4_out, encoder4_out], 1))
         decoder2_out = self.decoder2(torch.cat([decoder3_out, encoder2_out], 1))
         decoder1_out = self.decoder1(torch.cat([decoder2_out, encoder1_out], 1))
-        self.activs = [X, encoder1_out, encoder1_out_pooled,
-                       encoder2_out, encoder2_out_pooled,
-                       encoder3_out,
-                       encoder4_out, encoder4_out_pooled,
-                       encoder5_out,
-                       encoder6_out, encoder6_out_pooled,
-                       encoder7_out,
-                       encoder8_out, encoder8_out_pooled,
-                       decoder6_out,
-                       decoder5_out,
-                       decoder4_out,
-                       decoder3_out,
-                       decoder2_out,
-                       decoder1_out]
+
+        self.activs = [X, e1, encoder1_out, encoder1_out_pooled,
+                       e2, encoder2_out, encoder2_out_pooled,
+                       e3, encoder3_out,
+                       e4, encoder4_out, encoder4_out_pooled,
+                       e5, encoder5_out,
+                       e6, encoder6_out, encoder6_out_pooled,
+                       e7, encoder7_out,
+                       e8, encoder8_out, encoder8_out_pooled]
 
         return decoder1_out

@@ -9,6 +9,7 @@ from utils.data_loader import load_data
 from models.UNet import UNet
 from models.VGGmod import VGGmod
 from train import train
+from match_channels import match_channels
 from retrieve_activations import retrieve_activations
 from utils.load_activations import load_activations
 from view_activs import visualize_batch
@@ -45,7 +46,7 @@ def main():
             sys.exit("Must specify model to use with --model argument")
         dataset = load_data(args.path, resize=~args.no_resize)
         if args.subset:
-            sampler = torch.utils.data.SubsetRandomSampler(np.arange(10))
+            sampler = torch.utils.data.SubsetRandomSampler(np.arange(50))
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=sampler)
         else:
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
@@ -58,7 +59,15 @@ def main():
             else:
                 print("NOTE: Getting activations for untrained network. Specified a pretrained model with the "
                       "--checkpoint argument.")
+        elif args.model == 'vggmod':
+            model = VGGmod()
         else:
+            model = UNet(num_classes=len(datasets.Cityscapes.classes))
+            if args.checkpoint:
+                checkpoint = torch.load(args.checkpoint)
+                model.load_state_dict(checkpoint['model_state_dict'])
+            set_parameter_required_grad(model, True)
+            retrieve_activations(model, dataloader)
             model = VGGmod()
 
         set_parameter_required_grad(model, True)
@@ -66,14 +75,19 @@ def main():
         retrieve_activations(model, dataloader)
 
     if args.mode == 'view_activations':
-        f1 = os.path.join(args.path, 'VGGmod_activations')
-        f2 = os.path.join(args.path, 'UNet_activations_matched')
-        if not os.path.exists(f1) or not os.path.exists(f2):
-            print("Could not load activations from "+args.path+". If you have not generated activations for both UNet "
-                  "and VGG11, run instead with the \"--mode activations\" parameter.")
+        file_1 = os.path.join(args.path, 'VGGmod_activations')
+        file_2 = os.path.join(args.path, 'UNet_activations_matched')
+        if not os.path.exists(file_1) or not os.path.exists(file_2):
+            exit("Could not load activations from "+args.path+". If you have not generated activations for both UNet "
+                 "and VGG11, run instead with the \"--mode activations\" parameter.")
 
-        activs1, activs2 = load_activations(f1, f2)
+        activs1, activs2 = load_activations(file_1, file_2)
         visualize_batch(activs1, activs2, args.batch_num)
+
+    if args.mode == 'compare_activations':
+        file_1 = os.path.join(args.path, 'VGGmod_activations')
+        file_2 = os.path.join(args.path, 'UNet_activations')
+        match_channels(file_1, file_2)
 
 
 def set_parameter_required_grad(model, requires_grad=True):

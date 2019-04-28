@@ -11,13 +11,15 @@ def get_cli_arguments():
                         help='Relative path to directory containing to CityScapes gtFine and leftImg8bit directories')
 
     parser.add_argument("--mode", "-m",
-                        choices=['train', 'test', 'activations', 'view_activations'],
+                        choices=['train', 'test', 'activations', 'compare_activations', 'view_activations'],
                         default='train',
                         help="train: performs training. Test tests the model. activations saves the activations. Must "
-                             "use argument --model with activations keyword. Default: train")
+                             "use argument --model with activations keyword. compare_activations comapres the "
+                             "activations in the specified folder. view_activations views the activations in the"
+                             "specified folder. Default: train")
 
     parser.add_argument("--model",
-                        choices=['unet', 'vggmod'],
+                        choices=['unet', 'vggmod', 'both'],
                         default=None,
                         help="Specifiy which model to use to save activations. unet uses the custom UNet, vggmod uses"
                              "the pre-trained VGG11 model. Use --checkpoint to specify a pretrained model for UNet.")
