@@ -11,7 +11,7 @@ def get_cli_arguments():
                         help='Relative path to directory containing to CityScapes gtFine and leftImg8bit directories')
 
     parser.add_argument("--mode", "-m",
-                        choices=['train', 'test', 'activations'],
+                        choices=['train', 'test', 'activations', 'view_activations'],
                         default='train',
                         help="train: performs training. Test tests the model. activations saves the activations. Must "
                              "use argument --model with activations keyword. Default: train")
@@ -26,6 +26,11 @@ def get_cli_arguments():
                         type=str,
                         default=None,
                         help='Relative path to saved checkpoint')
+
+    parser.add_argument('--batch_num',
+                        type=int,
+                        default=0,
+                        help='Specify which batch to visualize. Used with \"--mode view_activations\"')
 
     parser.add_argument('--subset',
                         action='store_true',

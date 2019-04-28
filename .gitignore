@@ -6,3 +6,6 @@ __pycache__/
 .idea/
 models/*.tar
 datamini/
+activations/
+activation_visualizations/
+pretrained/

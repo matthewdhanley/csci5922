@@ -10,6 +10,9 @@ from models.UNet import UNet
 from models.VGGmod import VGGmod
 from train import train
 from retrieve_activations import retrieve_activations
+from utils.load_activations import load_activations
+from view_activs import visualize_batch
+
 import numpy as np
 
 
@@ -61,6 +64,16 @@ def main():
         set_parameter_required_grad(model, True)
 
         retrieve_activations(model, dataloader)
+
+    if args.mode == 'view_activations':
+        f1 = os.path.join(args.path, 'VGGmod_activations')
+        f2 = os.path.join(args.path, 'UNet_activations_matched')
+        if not os.path.exists(f1) or not os.path.exists(f2):
+            print("Could not load activations from "+args.path+". If you have not generated activations for both UNet "
+                  "and VGG11, run instead with the \"--mode activations\" parameter.")
+
+        activs1, activs2 = load_activations(f1, f2)
+        visualize_batch(activs1, activs2, args.batch_num)
 
 
 def set_parameter_required_grad(model, requires_grad=True):

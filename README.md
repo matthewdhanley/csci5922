@@ -6,7 +6,7 @@ network used in TerausNet made use of a pre-trained (on imagenet) VGG11 encoder.
 The goal of this project is to determine how activations differ between an encoder trained as a classifier on a dataset
 such as ImageNet and that same encoder that is trained as part of a full segmentation network.
 
-We used the [https://www.cityscapes-dataset.com](Cityscapes) dataset for the training of this network.
+We used the [Cityscapes](https://www.cityscapes-dataset.com) dataset for the training of this network.
 
 ### Training
 ```
