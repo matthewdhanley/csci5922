@@ -31,11 +31,12 @@ class UNetDecoderModule(nn.Module):
 
 
 class UNet(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, encoder_only=False):
         super().__init__()
         self.name = "UNet"
 
         self.num_classes = num_classes
+        self.encoder_only = encoder_only
 
         vgg11_encoder = models.vgg11(pretrained=False).features
         self.encoder1 = vgg11_encoder[0]
@@ -49,6 +50,10 @@ class UNet(nn.Module):
         self.encoder_act = vgg11_encoder[1]
         self.max_pool = vgg11_encoder[2]
 
+        self.encoder_layer_dict = {1: self.encoder1, 2: self.encoder2, 3: self.encoder3,
+                                   4: self.encoder4, 5: self.encoder5, 6: self.encoder6,
+                                   7: self.encoder7, 8: self.encoder8}
+
         self.decoder6 = UNetDecoderModule(512, 512, 256)
         self.decoder5 = UNetDecoderModule(256 + self.encoder8.out_channels, 512, 256)
         self.decoder4 = UNetDecoderModule(256 + self.encoder6.out_channels, 512, 128)
@@ -59,6 +64,12 @@ class UNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(32, self.num_classes, kernel_size=1),
         )
+
+    def get_encoder_layer(self, layer_index):
+        '''
+        Gets the convolutional torch module of the encoder, at layer layer_index
+        '''
+        return self.encoder_layer_dict[layer_index]
 
     def forward(self, X):
         '''
@@ -86,6 +97,9 @@ class UNet(nn.Module):
         # Skip connection
         encoder8_out = self.encoder_act(self.encoder8(encoder7_out))
         encoder8_out_pooled = self.max_pool(encoder8_out)
+
+        if self.encoder_only:
+            return encoder8_out_pooled
 
         '''
         Decode
