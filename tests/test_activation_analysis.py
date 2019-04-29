@@ -34,5 +34,13 @@ class TestActivationAnalysis(unittest.TestCase):
         self.assertEqual(img.shape, (int(64*1.2),int(64*1.2),3))
 
 
+    def test_upscale_image(self):
+        # Tests activation_analysis.upscale_image(...)
+        img = (np.random.uniform(0, 255, size=(3,32,32)) / 255).astype(np.float32, copy=False)
+        upscaled_image = upscale_image(img, 64)
+        self.assertIsInstance(img, np.ndarray)
+        self.assertEqual(upscaled_image.shape, (3,64,64))
+
+
 if __name__ == '__main__':
     unittest.main()
