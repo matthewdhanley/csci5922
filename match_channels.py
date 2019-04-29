@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import pickle
 import numpy as np
-import torch
 import copy
 
 
@@ -13,7 +12,9 @@ def load_files(fin1, fin2):
     return activations_1, activations_2
 
 
-def match_channels(fin1, fin2):
+def match_channels(fin1, fin2, mode):
+    if not mode in ['normal', 'blur', 'dilation', 'pooling']:
+        print(mode + " is not a valid matching type.")
     activations_1, activations_2 = load_files(fin1, fin2)
     num_images = len(activations_1)
     num_layers = len(activations_1[0])
@@ -24,20 +25,56 @@ def match_channels(fin1, fin2):
         dot_cum = np.zeros((num_channels, num_channels))
         mag_cum1 = np.zeros((num_channels, num_channels))
         mag_cum2 = np.zeros((num_channels, num_channels))
-
         for j in range(num_images):
+            activs_1 = activations_1[j][i].detach().numpy()
+            activs_2 = activations_2[j][i].detach().numpy()
+            if mode == 'blur':
+                dim = list(activs_1.shape)
+                dim[2] -= 2
+                dim[3] -= 2
+                mod_activs_1 = np.zeros(dim)
+                mod_activs_2 = np.zeros(dim)
+                for k in range(dim[2]):
+                    for l in range(dim[3]):
+                        mod_activs_1[:,:,k,l] = np.mean(activs_1[:,:,k:(k+2),l:(l+2)], (2,3))
+                        mod_activs_2[:,:,k,l] = np.mean(activs_2[:,:,k:(k+2),l:(l+2)], (2,3))
+            elif mode == 'dilation':
+                dim = list(activs_1.shape)
+                dim[2] -= 2
+                dim[3] -= 2
+                mod_activs_1 = np.zeros(dim)
+                mod_activs_2 = np.zeros(dim)
+                for k in range(dim[2]):
+                    for l in range(dim[3]):
+                        mod_activs_1[:,:,k,l] = np.max(activs_1[:,:,k:(k+2),l:(l+2)], (2,3))
+                        mod_activs_2[:,:,k,l] = np.max(activs_2[:,:,k:(k+2),l:(l+2)], (2,3))
+            elif mode == 'pooling':
+                dim = list(activs_1.shape)
+                dim[2] = int(np.floor(dim[2]/3) - 5)
+                dim[3] = int(np.floor(dim[2]/3) - 5)
+                mod_activs_1 = np.zeros(dim)
+                mod_activs_2 = np.zeros(dim)
+                for k in range(dim[2]):
+                    for l in range(dim[3]):
+                        mod_activs_1[:,:,k,l] = np.max(activs_1[:,:,(3*k):((3*k)+5),(3*l):((3*l)+5)], (2,3))
+                        mod_activs_2[:,:,k,l] = np.max(activs_2[:,:,(3*k):((3*k)+5),(3*l):((3*l)+5)], (2,3))
+            elif mode == 'normal':
+                mod_activs_1 = activs_1
+                mod_activs_2 = activs_2
             for k in range(num_channels):
                 for l in range(num_channels):
-                    dot_cum[k, l] += torch.sum(torch.mul(activations_1[j][i][:, k, :, :],
-                                                         activations_2[j][i][:, l, :, :]))
-                    mag_cum1[k, l] += torch.sum(torch.mul(activations_1[j][i][:, k, :, :],
-                                                          activations_1[j][i][:, k, :, :]))
-                    mag_cum2[k, l] += torch.sum(torch.mul(activations_2[j][i][:, l, :, :],
-                                                          activations_2[j][i][:, l, :, :]))
+                    dot_cum[k, l] += np.sum(np.multiply(mod_activs_1[:, k, :, :],
+                                                         mod_activs_2[:, l, :, :]))
+                    mag_cum1[k, l] += np.sum(np.multiply(mod_activs_1[:, k, :, :],
+                                                          mod_activs_1[:, k, :, :]))
+                    mag_cum2[k, l] += np.sum(np.multiply(mod_activs_2[:, l, :, :],
+                                                          mod_activs_2[:, l, :, :]))
 
         root = (np.sqrt(mag_cum1 * mag_cum2))
         root[root <= .00001] = float('Inf')
         scores = dot_cum / root
+
+        print(scores)
 
         while np.max(scores) != -float('Inf'):
             ind = np.unravel_index(np.argmax(scores, axis=None), scores.shape)

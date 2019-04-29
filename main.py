@@ -74,7 +74,7 @@ def main():
     if args.mode == 'compare_activations':
         file_1 = os.path.join(args.path, 'VGGmod_activations')
         file_2 = os.path.join(args.path, 'UNet_activations')
-        match_channels(file_1, file_2)
+        match_channels(file_1, file_2, args.type)
 
 
 def set_parameter_required_grad(model, requires_grad=True):

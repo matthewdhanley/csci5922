@@ -38,6 +38,11 @@ def get_cli_arguments():
                         help='Do not resize input images. Results in significantly more memory needing to be allocated.'
                              'Default=False')
 
+    parser.add_argument('--type',
+                        choices=['normal', 'blur', 'dilation', 'pooling'],
+                        default='normal',
+                        help='Type of comparison to use for channel matching.')
+
     # Hyperparameters.
     parser.add_argument('-b', '--batch_size',
                         type=int,
