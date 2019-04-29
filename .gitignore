@@ -1,6 +1,7 @@
 Cityscapes/
 cityscapes/
 datamini/
+tinyimagenet/
 chkpt/
 checkpoints/
 __pycache__/
