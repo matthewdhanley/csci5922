@@ -1,6 +1,7 @@
 from torchvision import transforms, datasets
 from utils.data_transforms import PILToLongTensor
 from PIL import Image
+import os
 
 
 def input_image_transform(resize_size):
@@ -58,6 +59,6 @@ def load_data(path, data_type, resize=True):
                                       transform=input_transform,
                                       target_transform=output_transform)
     elif data_type == 'imagenet':
-        dataset = datasets.ImageFolder(os.path.join(path, 'train'), transform=data_transform)
+        dataset = datasets.ImageFolder(os.path.join(path, 'train'), transform=input_transform)
 
     return dataset
