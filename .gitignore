@@ -1,5 +1,6 @@
 [cC]ityscapes/
 datamini/
+cityscapes/
 chkpt/
 checkpoints/
 __pycache__/
