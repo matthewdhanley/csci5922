@@ -50,8 +50,8 @@ def match_channels(fin1, fin2, mode):
                         mod_activs_2[:,:,k,l] = np.max(activs_2[:,:,k:(k+2),l:(l+2)], (2,3))
             elif mode == 'pooling':
                 dim = list(activs_1.shape)
-                dim[2] = int(np.floor(dim[2]/3) - 5)
-                dim[3] = int(np.floor(dim[2]/3) - 5)
+                dim[2] = int(np.floor((dim[2]-5)/3))
+                dim[3] = int(np.floor((dim[3]-5)/3))
                 mod_activs_1 = np.zeros(dim)
                 mod_activs_2 = np.zeros(dim)
                 for k in range(dim[2]):
