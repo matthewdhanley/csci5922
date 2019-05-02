@@ -13,6 +13,17 @@ def load_files(fin1, fin2):
 
 
 def match_channels(fin1, fin2, mode):
+    '''
+    Matches the channels of in each layer of two encoder modules based
+    on cosine similarity of their layer activations.
+    
+    Params:
+    fin1: pickle file containing activations from encoder 1
+    fin2: pickle file containing activations from encoder 2
+    mode: Preprocessing method to be applied to the activations
+    prior to their comparison.  Applied in effort to reduce the
+    pixel locality dependency in cosine similarity.
+    '''
     if not mode in ['normal', 'blur', 'dilation', 'pooling']:
         print(mode + " is not a valid matching type.")
     activations_1, activations_2 = load_files(fin1, fin2)
@@ -73,8 +84,6 @@ def match_channels(fin1, fin2, mode):
         root = (np.sqrt(mag_cum1 * mag_cum2))
         root[root <= .00001] = float('Inf')
         scores = dot_cum / root
-
-        print(scores)
 
         while np.max(scores) != -float('Inf'):
             ind = np.unravel_index(np.argmax(scores, axis=None), scores.shape)
