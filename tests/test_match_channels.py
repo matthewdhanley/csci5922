@@ -13,8 +13,8 @@ class TestMatchChannels(unittest.TestCase):
         self.file1 = './TEST_FILE_1'
         self.file2 = './TEST_FILE_2'
 
-        # Batch size of 1, 4 channels, each with 5x5 data
-        tensor1 = torch.zeros([1,4,5,5])
+        # Batch size of 1, 4 channels, each with 16x16 data
+        tensor1 = torch.zeros([1,4,16,16])
         tensor1.bernoulli_()
 
         # Permute channels of tensor1
@@ -35,6 +35,7 @@ class TestMatchChannels(unittest.TestCase):
     def tearDown(self):
         os.remove(self.file1)
         os.remove(self.file2)
+        os.remove('./TEST_FILE_2_matched')
 
 
     def test_load_files(self):
@@ -55,7 +56,6 @@ class TestMatchChannels(unittest.TestCase):
         _, d2 = load_files(self.file1, self.file2)
 
         match_channels(self.file1, self.file2, 'normal')
-
         with open('./TEST_FILE_2_matched', "rb") as f:
             matched_channels = pickle.load(f)
 
@@ -63,7 +63,36 @@ class TestMatchChannels(unittest.TestCase):
             for j in range(len(d2[0])):
                 self.assertTrue(torch.all(torch.eq(matched_channels[i][j],self.data2[i][j])))
 
-        os.remove('./TEST_FILE_2_matched')
+
+    def test_match_channels_blur(self):
+        # Tests match_channels(..., mode=blur)
+        _, d2 = load_files(self.file1, self.file2)
+
+        match_channels(self.file1, self.file2, 'blur')
+        with open('./TEST_FILE_2_matched', "rb") as f:
+            matched_channels = pickle.load(f)
+
+        for i in range(len(d2)):
+            for j in range(len(d2[0])):
+                self.assertTrue(torch.all(torch.eq(matched_channels[i][j],self.data2[i][j])))
+
+
+    def test_match_channels_dilation(self):
+        # Tests match_channels(..., mode=dilation)
+        _, d2 = load_files(self.file1, self.file2)
+
+        match_channels(self.file1, self.file2, 'dilation')
+        with open('./TEST_FILE_2_matched', "rb") as f:
+            matched_channels = pickle.load(f)
+
+        for i in range(len(d2)):
+            for j in range(len(d2[0])):
+                self.assertTrue(torch.all(torch.eq(matched_channels[i][j],self.data2[i][j])))
+
+
+    def test_match_channels_pooling(self):
+        # Tests match_channels(..., mode=pooling)
+        pass
 
 
 if __name__ == '__main__':
