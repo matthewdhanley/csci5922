@@ -35,7 +35,8 @@ class TestMatchChannels(unittest.TestCase):
     def tearDown(self):
         os.remove(self.file1)
         os.remove(self.file2)
-        os.remove('./TEST_FILE_2_matched')
+        if os.path.exists('./TEST_FILE_2_matched'):
+            os.remove('./TEST_FILE_2_matched')
 
 
     def test_load_files(self):
