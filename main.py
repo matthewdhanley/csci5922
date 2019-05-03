@@ -46,7 +46,7 @@ def main():
             sys.exit("Must specify model to use with --model argument")
         dataset = load_data(args.path, args.dataset, resize=~args.no_resize)
         if args.subset:
-            sampler = torch.utils.data.SubsetRandomSampler(np.arange(50))
+            sampler = torch.utils.data.SubsetRandomSampler(np.arange(10))
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=sampler)
         else:
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
@@ -54,7 +54,7 @@ def main():
         if args.model == 'unet':
             model = UNet(num_classes=len(datasets.Cityscapes.classes))
             if args.checkpoint:
-                checkpoint = torch.load(args.checkpoint)
+                checkpoint = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
                 model.load_state_dict(checkpoint['model_state_dict'])
             else:
                 print("NOTE: Getting activations for untrained network. Specified a pretrained model with the "
@@ -67,12 +67,12 @@ def main():
                 checkpoint = torch.load(args.checkpoint)
                 model.load_state_dict(checkpoint['model_state_dict'])
             set_parameter_required_grad(model, True)
-            retrieve_activations(model, dataloader)
+            retrieve_activations(model, dataloader, args.dataset)
             model = VGGmod()
 
         set_parameter_required_grad(model, True)
 
-        retrieve_activations(model, dataloader)
+        retrieve_activations(model, dataloader, args.dataset)
 
     if args.mode == 'compare_activations':
         file_1 = os.path.join(args.path, 'VGGmod_activations')
