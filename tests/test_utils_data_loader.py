@@ -49,33 +49,32 @@ class TestDataLoader(unittest.TestCase):
 
     def test_load_data(self):
         # Test loading of cityscapes dataset, no resize
-        data = data_loader.load_data(self.cityscapes_path, resize=False)
+        data = data_loader.load_data(self.cityscapes_path, 'cityscapes', resize=False)
         sample_img, sample_label = data[0]
         self.assertIsInstance(data, datasets.Cityscapes)
         self.assertEqual(sample_img.size(), torch.Size([3,1024,2048]))
         self.assertEqual(sample_label.size(), torch.Size([1024,2048]))
 
         # Test loading of cityscapes dataset, resizing data to 256x256
-        data = data_loader.load_data(self.cityscapes_path, resize=True)
+        data = data_loader.load_data(self.cityscapes_path, 'cityscapes', resize=True)
         sample_img, sample_label = data[0]
         self.assertIsInstance(data, datasets.Cityscapes)
         self.assertEqual(sample_img.size(), torch.Size([3,256,256]))
         self.assertEqual(sample_label.size(), torch.Size([256,256]))
 
         # Test loading of tinyimagenet dataset, no resize
-        #data = data_loader.load_data(self.imagenet_path, resize=False)
-        #sample_img, sample_label = data[0]
-        #self.assertIsInstance(data, datasets.ImageFolder)
-        #self.assertEqual(sample_img.size(), torch.Size([3,1024,2048]))
-        #self.assertEqual(sample_label.size(), torch.Size([1024,2048]))
+        data = data_loader.load_data(self.imagenet_path, 'imagenet', resize=False)
+        sample_img, sample_label = data[0]
+        self.assertIsInstance(data, datasets.ImageFolder)
+        self.assertEqual(sample_img.size(), torch.Size([3,64,64]))
+        self.assertIsInstance(sample_label, int)
 
         # Test loading of tinyimagenet dataset, resizing data to 256x256
-        #data = data_loader.load_data(self.imagenet_path, resize=True)
-        #sample_img, sample_label = data[0]
-        #self.assertIsInstance(data, datasets.ImageFolder)
-        #self.assertEqual(sample_img.size(), torch.Size([3,256,256]))
-        #self.assertEqual(sample_label.size(), torch.Size([256,256]))
-
+        data = data_loader.load_data(self.imagenet_path, 'imagenet', resize=True)
+        sample_img, sample_label = data[0]
+        self.assertIsInstance(data, datasets.ImageFolder)
+        self.assertEqual(sample_img.size(), torch.Size([3,256,256]))
+        self.assertIsInstance(sample_label, int)
 
 
 if __name__ == '__main__':

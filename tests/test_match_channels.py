@@ -120,6 +120,5 @@ class TestMatchChannels(unittest.TestCase):
         self.assertTrue(torch.all(torch.eq(matched_channels[0][0][:,3,:,:], self.data3[0][0][:,1,:,:])))
 
 
-
 if __name__ == '__main__':
     unittest.main()

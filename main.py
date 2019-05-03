@@ -46,7 +46,7 @@ def main():
             sys.exit("Must specify model to use with --model argument")
         dataset = load_data(args.path, args.dataset, resize=~args.no_resize)
         if args.subset:
-            sampler = torch.utils.data.SubsetRandomSampler(np.arange(10))
+            sampler = torch.utils.data.SubsetRandomSampler(np.arange(50))
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=sampler)
         else:
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
