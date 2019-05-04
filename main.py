@@ -12,6 +12,8 @@ from train import train
 from match_channels import match_channels
 from retrieve_activations import retrieve_activations
 from utils.set_parameter_required_grad import set_parameter_required_grad
+from utils.load_activations import load_activations
+from view_activs import visualize_batch
 import numpy as np
 
 
@@ -78,6 +80,19 @@ def main():
         set_parameter_required_grad(model, True)
 
         retrieve_activations(model, dataloader, args.dataset)
+
+    if args.mode == 'view_activations':
+        file_1 = os.path.join(args.path, 'VGGmod_activations')
+        file_2 = os.path.join(args.path, 'UNet_activations_matched')
+        if not os.path.exists(file_1) or not os.path.exists(file_2):
+            exit("Could not load activations from "+args.path+". If you have not generated activations for both UNet "
+                 "and VGG11, run instead with the \"--mode activations\" parameter.")
+
+        activs1, activs2 = load_activations(file_1, file_2)
+        visualize_batch(activs1, activs2,
+                        batch_num=args.batch_num,
+                        start_layer=args.start_layer,
+                        stop_layer=args.stop_layer)
 
     if args.mode == 'compare_activations':
         file_1 = os.path.join(args.path, 'VGGmod_activations')
