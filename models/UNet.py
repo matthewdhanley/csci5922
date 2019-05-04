@@ -56,16 +56,16 @@ class UNet(nn.Module):
                                    7: self.encoder7, 8: self.encoder8}
 
         if self.pretrained:
-            set_parameter_required_grad(self.encoder1)
-            set_parameter_required_grad(self.encoder2)
-            set_parameter_required_grad(self.encoder3)
-            set_parameter_required_grad(self.encoder4)
-            set_parameter_required_grad(self.encoder5)
-            set_parameter_required_grad(self.encoder6)
-            set_parameter_required_grad(self.encoder7)
-            set_parameter_required_grad(self.encoder8)
-            set_parameter_required_grad(self.encoder_act)
-            set_parameter_required_grad(self.max_pool)
+            set_parameter_required_grad(self.encoder1, requires_grad=False)
+            set_parameter_required_grad(self.encoder2, requires_grad=False)
+            set_parameter_required_grad(self.encoder3, requires_grad=False)
+            set_parameter_required_grad(self.encoder4, requires_grad=False)
+            set_parameter_required_grad(self.encoder5, requires_grad=False)
+            set_parameter_required_grad(self.encoder6, requires_grad=False)
+            set_parameter_required_grad(self.encoder7, requires_grad=False)
+            set_parameter_required_grad(self.encoder8, requires_grad=False)
+            set_parameter_required_grad(self.encoder_act, requires_grad=False)
+            set_parameter_required_grad(self.max_pool, requires_grad=False)
 
         self.decoder6 = UNetDecoderModule(512, 512, 256)
         self.decoder5 = UNetDecoderModule(256 + self.encoder8.out_channels, 512, 256)
