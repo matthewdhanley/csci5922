@@ -68,12 +68,12 @@ class LayerActivationAnalysis():
         for i in range(upscaling_steps):
             image_tensor = torch.from_numpy(image).expand(1, -1, -1, -1)
             image_tensor = Variable(image_tensor, requires_grad=True)
-            image_tensor = image_tensor.to(device)
 
             if not image_tensor.grad is None:
                 image_tensor.grad.zero_()
 
             optimizer = torch.optim.Adam([image_tensor], lr=lr, weight_decay=1e-6)
+            image_tensor = image_tensor.to(device)
 
             # Update image update_steps times
             for n in range(update_steps):
@@ -82,11 +82,11 @@ class LayerActivationAnalysis():
                 loss = -1 * (layer_activations.activations[0, channel_index].norm())
                 if verbose and (n % 5 == 0):
                     print('Loss at upscale step {}/{}, update {}/{}: {}'
-                            .format(i, upscaling_steps-1, n, update_steps-1, loss))
+                          .format(i, upscaling_steps-1, n, update_steps-1, loss))
                 loss.backward()
                 optimizer.step()
 
-            image = torch.squeeze(image_tensor, dim=0).clone().detach().numpy()
+            image = torch.squeeze(image_tensor.cpu(), dim=0).clone().detach().numpy()
             size = int(upscaling_factor * size)
             image = upscale_image(image, size)
 
