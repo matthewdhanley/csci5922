@@ -1,5 +1,4 @@
-Cityscapes/
-cityscapes/
+[Cc]ityscapes/
 datamini/
 tinyimagenet/
 chkpt/
@@ -12,3 +11,4 @@ pretrained/
 activation_visualizations/
 activation_*/
 matt_test/
+
