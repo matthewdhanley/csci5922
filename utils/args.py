@@ -19,11 +19,12 @@ def get_cli_arguments():
                         help='Specify which dataset is located at path argument. Default: cityscapes')
 
     parser.add_argument("--mode", "-m",
-                        choices=['train', 'test', 'activations', 'compare_activations'],
+                        choices=['train', 'test', 'activations', 'compare_activations', 'view_activations'],
                         default='train',
                         help="train: performs training. Test tests the model. activations saves the activations. Must "
                              "use argument --model with activations keyword. compare_activations comapres the "
-                             "activations in the specified folder. Default: train")
+                             "activations in the specified folder. view_activations views the activations in the"
+                             "specified folder. Default: train")
 
     parser.add_argument("--model",
                         choices=['unet', 'vggmod', 'both'],
@@ -36,10 +37,20 @@ def get_cli_arguments():
                         default=None,
                         help='Relative path to saved checkpoint')
 
-    parser.add_argument('--savedir',
-                        type=str,
-                        default=None,
-                        help='Relative path to location to save checkpoint')
+    parser.add_argument('--batch_num',
+                        type=int,
+                        default=0,
+                        help='Specify which batch to visualize. Used with \"--mode view_activations\"')
+
+    parser.add_argument('--start_layer',
+                        type=int,
+                        default=0,
+                        help='Specify which layer to begin visualizations. Used with \"--mode view_activations\"')
+
+    parser.add_argument('--stop_layer',
+                        type=int,
+                        default=22,
+                        help='Specify which layer to begin visualizations. Used with \"--mode view_activations\"')
 
     parser.add_argument('--subset',
                         action='store_true',

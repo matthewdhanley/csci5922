@@ -2,6 +2,7 @@
 import pickle
 import numpy as np
 import copy
+from skimage.measure import _structural_similarity as ssim
 
 
 def load_files(fin1, fin2):
@@ -84,6 +85,7 @@ def match_channels(fin1, fin2, mode):
         root = (np.sqrt(mag_cum1 * mag_cum2))
         root[root <= .00001] = float('Inf')
         scores = dot_cum / root
+        scores[root <= .00001] = -1
 
         while np.max(scores) != -float('Inf'):
             ind = np.unravel_index(np.argmax(scores, axis=None), scores.shape)
@@ -93,3 +95,6 @@ def match_channels(fin1, fin2, mode):
             scores[:, ind[1]] = -float('Inf')
     with open(fin2 + '_matched', mode='wb') as fout:
         pickle.dump(activs_out, fout)
+
+
+
