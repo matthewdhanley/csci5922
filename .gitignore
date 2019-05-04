@@ -1,13 +1,14 @@
-Cityscapes/
-cityscapes/
+[cC]ityscapes/
 datamini/
+cityscapes/
 tinyimagenet/
 chkpt/
 checkpoints/
 __pycache__/
 .idea/
 models/*.tar
+datamini/
 activations/
-pretrained/
 activation_visualizations/
+pretrained/
 activation_*/
