@@ -45,6 +45,7 @@ class CityscapeSegmentationVis():
         return class_tensor
 
     def save_segmentation(self, class_tensor, out_location):
+        class_tensor = class_tensor.to(torch.device("cpu"))
         image = self.segmentation_transform(class_tensor)
         image.save(out_location)
         return
