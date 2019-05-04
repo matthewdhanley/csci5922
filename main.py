@@ -11,6 +11,7 @@ from models.VGGmod import VGGmod
 from train import train
 from match_channels import match_channels
 from retrieve_activations import retrieve_activations
+from utils.set_parameter_required_grad import set_parameter_required_grad
 import numpy as np
 
 
@@ -32,13 +33,17 @@ def main():
         else:
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
-        model = UNet(num_classes=len(datasets.Cityscapes.classes))
+        model = UNet(num_classes=len(datasets.Cityscapes.classes), pretrained=args.pretrained)
 
-        set_parameter_required_grad(model, True)
+        if not args.pretrained:
+            set_parameter_required_grad(model, True)
 
         criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
-        train(model, dataloader, criterion, optimizer, num_epochs=args.epochs, checkpoint_path=args.checkpoint)
+        if (args.savedir is not None) and (not os.path.exists(args.savedir)):
+            os.makedirs(args.savedir)
+        train(model, dataloader, criterion, optimizer, num_epochs=args.epochs, checkpoint_path=args.checkpoint,
+              save_path=args.savedir)
         return
 
     if args.mode == 'activations':
@@ -78,12 +83,6 @@ def main():
         file_1 = os.path.join(args.path, 'VGGmod_activations')
         file_2 = os.path.join(args.path, 'UNet_activations')
         match_channels(file_1, file_2, args.type)
-
-
-def set_parameter_required_grad(model, requires_grad=True):
-    for param in model.parameters():
-        param.requires_grad = requires_grad
-    return
 
 
 if __name__ == "__main__":

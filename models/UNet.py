@@ -8,6 +8,7 @@ https://arxiv.org/abs/1801.05746
 import torch
 import torch.nn as nn
 from torchvision import models
+from utils.set_parameter_required_grad import set_parameter_required_grad
 
 
 class UNetDecoderModule(nn.Module):
@@ -31,14 +32,14 @@ class UNetDecoderModule(nn.Module):
 
 
 class UNet(nn.Module):
-    def __init__(self, num_classes, encoder_only=False):
+    def __init__(self, num_classes, encoder_only=False, pretrained=False):
         super().__init__()
         self.name = "UNet"
-
+        self.pretrained = pretrained
         self.num_classes = num_classes
         self.encoder_only = encoder_only
 
-        vgg11_encoder = models.vgg11(pretrained=False).features
+        vgg11_encoder = models.vgg11(pretrained=pretrained).features
         self.encoder1 = vgg11_encoder[0]
         self.encoder2 = vgg11_encoder[3]
         self.encoder3 = vgg11_encoder[6]
@@ -53,6 +54,18 @@ class UNet(nn.Module):
         self.encoder_layer_dict = {1: self.encoder1, 2: self.encoder2, 3: self.encoder3,
                                    4: self.encoder4, 5: self.encoder5, 6: self.encoder6,
                                    7: self.encoder7, 8: self.encoder8}
+
+        if self.pretrained:
+            set_parameter_required_grad(self.encoder1)
+            set_parameter_required_grad(self.encoder2)
+            set_parameter_required_grad(self.encoder3)
+            set_parameter_required_grad(self.encoder4)
+            set_parameter_required_grad(self.encoder5)
+            set_parameter_required_grad(self.encoder6)
+            set_parameter_required_grad(self.encoder7)
+            set_parameter_required_grad(self.encoder8)
+            set_parameter_required_grad(self.encoder_act)
+            set_parameter_required_grad(self.max_pool)
 
         self.decoder6 = UNetDecoderModule(512, 512, 256)
         self.decoder5 = UNetDecoderModule(256 + self.encoder8.out_channels, 512, 256)
