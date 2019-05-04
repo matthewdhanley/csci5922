@@ -203,7 +203,7 @@ if __name__=='__main__':
         if args.data_path and args.dataset:
             layers = [get_conv_layer(model, i) for i in [1,2,3,4,5,6,7,8]]
             avg = analyzer.get_avg_activated_channels(layers, args.data_path, args.dataset, args.sample_size)
-            print(avg)
+            print('Average number of channels activated per convolutional layer: {}'.format(avg))
 
         # Output the channels activated by a randomly initialize image
         else:
