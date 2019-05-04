@@ -9,7 +9,7 @@ from torch.autograd import Variable
 import numpy as np
 import cv2
 
-from data_loader import load_data
+from utils.data_loader import load_data
 
 
 def upscale_image(image, upscale_size):

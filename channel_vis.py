@@ -62,7 +62,7 @@ def get_cli_arguments():
 
     parser.add_argument('--layer',
                         type=int,
-                        required=True,
+                        default=8,
                         choices=[1,2,3,4,5,6,7,8],
                         help='Layer of encoder to analyze')
 
@@ -103,7 +103,24 @@ def get_cli_arguments():
     parser.add_argument('-o', '--out',
                         type=str,
                         default='./',
-                        help='Path to write segmentation visualizations to')
+                        help='Path to write visualizations to')
+
+    parser.add_argument('--data_path',
+                        type=str,
+                        help='Relative path to data directory containing either the CityScapes'
+                             'gtFine and leftImg8bit directories or tinyimagenet train directory')
+
+    parser.add_argument('--dataset',
+                        type=str,
+                        choices=['cityscapes', 'imagenet'],
+                        default='cityscapes',
+                        help='Specify which dataset is located at path argument. Default: cityscapes')
+
+    parser.add_argument('--sample_size',
+                        type=int,
+                        default=50,
+                        help='Number of input samples to use from the specified dataset'
+                             'when computing average number of activated channels')
 
     parser.add_argument('-v', '--verbose',
                         action='store_true',
@@ -181,10 +198,17 @@ if __name__=='__main__':
             output_dest = os.path.join(args.out, '{}_layer{}_channel{}.png'.format(model_name, args.layer, channel))
             save_image(img, output_dest)
 
-    # Output the channels activated by a randomly initialize image
     else:
-        activated_channels = analyzer.get_activated_filter_indices(initial_img_size=args.img_size)
-        print('Output channels in conv layer {} activated by random image input:'.format(args.layer))
-        print(activated_channels)
-        print()
-        print('(Total of {} activated channels)'.format(len(activated_channels)))
+        # Compute the average number number of channels activated in each layer
+        if args.data_path and args.dataset:
+            layers = [get_conv_layer(model, i) for i in [1,2,3,4,5,6,7,8]]
+            avg = analyzer.get_avg_activated_channels(layers, args.data_path, args.dataset, args.sample_size)
+            print(avg)
+
+        # Output the channels activated by a randomly initialize image
+        else:
+            activated_channels = analyzer.get_activated_filter_indices(initial_img_size=args.img_size)
+            print('Output channels in conv layer {} activated by random image input:'.format(args.layer))
+            print(activated_channels)
+            print()
+            print('(Total of {} activated channels)'.format(len(activated_channels)))
