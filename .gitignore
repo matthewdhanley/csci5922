@@ -10,3 +10,4 @@ models/*.tar
 activations/
 pretrained/
 activation_visualizations/
+activation_*/
