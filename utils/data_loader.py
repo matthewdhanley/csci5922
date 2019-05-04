@@ -1,6 +1,7 @@
 from torchvision import transforms, datasets
 from utils.data_transforms import PILToLongTensor
 from PIL import Image
+import os
 
 
 def input_image_transform(resize_size):
@@ -31,7 +32,7 @@ def output_image_transform(resize_size):
     return transform
 
 
-def load_data(path, resize=True):
+def load_data(path, data_type, resize=True):
     """
     Loads Cityscapes data from path input via command line.
     :param path: Path to root of Cityscapes directory
@@ -50,11 +51,14 @@ def load_data(path, resize=True):
         input_transform = input_image_transform(0)
         output_transform = output_image_transform(0)
 
-    dataset = datasets.Cityscapes(path,
-                                  split='train',
-                                  mode='fine',
-                                  target_type='semantic',
-                                  transform=input_transform,
-                                  target_transform=output_transform)
+    if data_type == 'cityscapes':
+        dataset = datasets.Cityscapes(path,
+                                      split='train',
+                                      mode='fine',
+                                      target_type='semantic',
+                                      transform=input_transform,
+                                      target_transform=output_transform)
+    elif data_type == 'imagenet':
+        dataset = datasets.ImageFolder(os.path.join(path, 'train'), transform=input_transform)
 
     return dataset

@@ -8,7 +8,15 @@ def get_cli_arguments():
     parser = argparse.ArgumentParser(description='Train UNet on CityScapes data')
     parser.add_argument('path',
                         type=str,
-                        help='Relative path to directory containing to CityScapes gtFine and leftImg8bit directories')
+                        help='Relative path to data directory containing either the CityScapes'
+                             'gtFine and leftImg8bit directories, tinyimagenet train directory,'
+                             'or activation pickle file.')
+
+    parser.add_argument('--dataset',
+                        type=str,
+                        choices=['cityscapes', 'imagenet'],
+                        default='cityscapes',
+                        help='Specify which dataset is located at path argument. Default: cityscapes')
 
     parser.add_argument("--mode", "-m",
                         choices=['train', 'test', 'activations', 'compare_activations', 'view_activations'],
@@ -53,6 +61,11 @@ def get_cli_arguments():
                         default=False,
                         help='Do not resize input images. Results in significantly more memory needing to be allocated.'
                              'Default=False')
+
+    parser.add_argument('--type',
+                        choices=['normal', 'blur', 'dilation', 'pooling'],
+                        default='normal',
+                        help='Type of comparison to use for channel matching.')
 
     # Hyperparameters.
     parser.add_argument('-b', '--batch_size',

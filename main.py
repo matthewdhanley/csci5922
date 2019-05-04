@@ -24,7 +24,10 @@ def main():
         sys.exit('Specified checkpoint cannot be found')
 
     if args.mode == 'train':
-        dataset = load_data(args.path, resize=~args.no_resize)
+        if args.dataset != 'cityscapes':
+            sys.exit("Model can only be trained on cityscapes dataset")
+
+        dataset = load_data(args.path, args.dataset, resize=~args.no_resize)
 
         if args.subset:
             sampler = torch.utils.data.SubsetRandomSampler(np.arange(10))
@@ -44,7 +47,7 @@ def main():
     if args.mode == 'activations':
         if args.model is None:
             sys.exit("Must specify model to use with --model argument")
-        dataset = load_data(args.path, resize=~args.no_resize)
+        dataset = load_data(args.path, args.dataset, resize=~args.no_resize)
         if args.subset:
             sampler = torch.utils.data.SubsetRandomSampler(np.arange(50))
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=sampler)
@@ -54,7 +57,7 @@ def main():
         if args.model == 'unet':
             model = UNet(num_classes=len(datasets.Cityscapes.classes))
             if args.checkpoint:
-                checkpoint = torch.load(args.checkpoint)
+                checkpoint = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
                 model.load_state_dict(checkpoint['model_state_dict'])
             else:
                 print("NOTE: Getting activations for untrained network. Specified a pretrained model with the "
@@ -90,7 +93,7 @@ def main():
     if args.mode == 'compare_activations':
         file_1 = os.path.join(args.path, 'VGGmod_activations')
         file_2 = os.path.join(args.path, 'UNet_activations')
-        match_channels(file_1, file_2)
+        match_channels(file_1, file_2, args.type)
 
 
 def set_parameter_required_grad(model, requires_grad=True):
