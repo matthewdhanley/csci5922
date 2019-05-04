@@ -1,18 +1,19 @@
 import unittest
 import sys
+import os
 import numpy as np
 import torch
 from torchvision import transforms, datasets
 from PIL import Image
 
-sys.path.insert(0, '../')
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from utils import data_loader
 
 
 class TestDataLoader(unittest.TestCase):
     def setUp(self):
-        self.cityscapes_path = '../data'
-        self.imagenet_path = './tinyimagenet_test'
+        self.cityscapes_path = os.path.join(os.path.dirname(__file__), '../data')
+        self.imagenet_path = os.path.join(os.path.dirname(__file__), 'tinyimagenet_test')
         self.image = Image.fromarray(np.uint8(np.random.randint(0, 256, (32, 32))))
 
     def test_input_image_transform(self):

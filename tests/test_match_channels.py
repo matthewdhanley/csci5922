@@ -4,7 +4,7 @@ import sys
 import pickle
 import torch
 
-sys.path.insert(0, '../')
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from match_channels import match_channels, load_files
 
 
