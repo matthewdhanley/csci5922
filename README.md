@@ -8,6 +8,8 @@ such as ImageNet and that same encoder that is trained as part of a full segment
 
 We used the [https://www.cityscapes-dataset.com](Cityscapes) dataset for the training of this network.
 
+[![Build Status](https://travis-ci.com/matthewdhanley/csci5922.svg?branch=master)](https://travis-ci.com/matthewdhanley/csci5922)
+
 ### Training
 ```
 python main.py cityscapes_path/ --mode train --save_dir checkpoints/ --file unet.tar
