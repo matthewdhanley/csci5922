@@ -54,7 +54,7 @@ def main():
         if args.model == 'unet':
             model = UNet(num_classes=len(datasets.Cityscapes.classes))
             if args.checkpoint:
-                checkpoint = torch.load(args.checkpoint)
+                checkpoint = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
                 model.load_state_dict(checkpoint['model_state_dict'])
             else:
                 print("NOTE: Getting activations for untrained network. Specified a pretrained model with the "
