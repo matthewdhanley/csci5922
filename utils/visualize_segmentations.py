@@ -17,7 +17,8 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class CityscapeSegmentationVis():
     def __init__(self, model, input_transform):
         self.model = model
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        # self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cpu")
         self.input_transform = input_transform
 
         # LongTensorToRGBPIL is instantiated with an ordered dictionary of tuples that

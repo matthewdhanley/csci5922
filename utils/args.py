@@ -68,6 +68,11 @@ def get_cli_arguments():
                         help='Train the UNet with a pretrained VGG11 encoder. Weights of the encoder will not be'
                              'updated.')
 
+    parser.add_argument('--savedir',
+                        type=str,
+                        default=None,
+                        help='Relative path to location to save checkpoint')
+
     parser.add_argument('--type',
                         choices=['normal', 'blur', 'dilation', 'pooling'],
                         default='normal',
