@@ -9,7 +9,7 @@ from utils.data_loader import load_data
 from models.UNet import UNet
 from models.VGGmod import VGGmod
 from train import train
-from test import test
+from validate import validate
 from match_channels import match_channels
 from retrieve_activations import retrieve_activations
 from utils.set_parameter_required_grad import set_parameter_required_grad
@@ -59,7 +59,7 @@ def main():
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
         model = UNet(num_classes=len(datasets.Cityscapes.classes), pretrained=args.pretrained)
-        test(model, dataloader, args.checkpoint)
+        validate(model, dataloader, args.checkpoint)
 
     if args.mode == 'activations':
         if args.model is None:

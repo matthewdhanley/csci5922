@@ -6,13 +6,14 @@ import sys
 from PIL import Image
 from collections import OrderedDict
 
-sys.path.insert(0, '../')
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from utils.data_loader import input_image_transform, output_image_transform
 from utils.data_transforms import PILToLongTensor, LongTensorToRGBPIL
 from models.UNet import UNet
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 
 class CityscapeSegmentationVis():
     def __init__(self, model, input_transform):
@@ -83,7 +84,6 @@ def main():
     else:
         imgs.append(args.img_path)
 
-
     checkpoint = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
     model = UNet(num_classes=len(datasets.Cityscapes.classes))
     model.load_state_dict(checkpoint['model_state_dict'])
@@ -96,6 +96,7 @@ def main():
         out_location = os.path.join(args.out, image_name)
         class_tensor = visualizer.get_predicted_segmentation(img)
         visualizer.save_segmentation(class_tensor, out_location)
+
 
 if __name__=='__main__':
     main()

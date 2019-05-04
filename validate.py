@@ -3,7 +3,7 @@ import time
 from utils.metrics import runningScore
 
 
-def test(model, dataloader, checkpoint_path, save_path=None):
+def validate(model, dataloader, checkpoint_path, save_path=None):
     since = time.time()
 
     # set the device to gpu if possible
