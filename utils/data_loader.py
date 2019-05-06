@@ -35,7 +35,8 @@ def output_image_transform(resize_size):
 def load_data(path, data_type, resize=True):
     """
     Loads Cityscapes data from path input via command line.
-    :param path: Path to root of Cityscapes directory
+    :param path: Path to root data directory
+    :param data_type: dataset located at specified path (cityscapes or imagenet)
     :param resize: Set to true to size down the images. Default=True
     :return: torchvision cityscapes dataset object
     """
