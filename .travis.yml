@@ -1,0 +1,18 @@
+language: python
+
+python:
+    - "3.5"
+    - "3.6"
+
+before_install:
+ - sudo apt-get update
+
+install:
+  - "pip install --upgrade pip"
+  - "pip install opencv-python"
+  - "pip install --pre -r requirements.txt"
+
+script:
+  - python tests/test_activation_analysis.py
+  - python tests/test_match_channels.py
+  - python tests/test_utils_data_loader.py
