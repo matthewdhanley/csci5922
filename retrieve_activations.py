@@ -2,7 +2,7 @@ import pickle
 import os
 
 
-def retrieve_activations(net, dataloader):
+def retrieve_activations(net, dataloader, dataset_name):
     activs = []
     if not os.path.exists('activations'):
         print("Creating directory ./activations to store activations.")
