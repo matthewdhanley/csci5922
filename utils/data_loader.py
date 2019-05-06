@@ -32,7 +32,7 @@ def output_image_transform(resize_size):
     return transform
 
 
-def load_data(path, data_type, resize=True):
+def load_data(path, data_type, resize=True, split='train'):
     """
     Loads Cityscapes data from path input via command line.
     :param path: Path to root data directory
@@ -54,7 +54,7 @@ def load_data(path, data_type, resize=True):
 
     if data_type == 'cityscapes':
         dataset = datasets.Cityscapes(path,
-                                      split='train',
+                                      split=split,
                                       mode='fine',
                                       target_type='semantic',
                                       transform=input_transform,

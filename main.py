@@ -9,6 +9,7 @@ from utils.data_loader import load_data
 from models.UNet import UNet
 from models.VGGmod import VGGmod
 from train import train
+from validate import validate
 from match_channels import match_channels
 from retrieve_activations import retrieve_activations
 from utils.set_parameter_required_grad import set_parameter_required_grad
@@ -47,6 +48,18 @@ def main():
         train(model, dataloader, criterion, optimizer, num_epochs=args.epochs, checkpoint_path=args.checkpoint,
               save_path=args.savedir)
         return
+
+    if args.mode == 'test':
+        dataset = load_data(args.path, args.dataset, resize=~args.no_resize, split='val')
+
+        if args.subset:
+            sampler = torch.utils.data.SubsetRandomSampler(np.arange(10))
+            dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=sampler)
+        else:
+            dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+
+        model = UNet(num_classes=len(datasets.Cityscapes.classes), pretrained=args.pretrained)
+        validate(model, dataloader, args.checkpoint)
 
     if args.mode == 'activations':
         if args.model is None:
