@@ -55,13 +55,25 @@ The process of solving for this maximally activating image involved starting wit
 
 Provided below are sample visualiations that accomplish this task.
 
-***Figure 3**: Images that maximally activate 9 different channels of convolutional layer 1 of the VGG-11 classification encoder*
+***Figure 3**: Images that maximally activate 9 different channels of convolutional layer 2 of the VGG-11 classification encoder*
+<p align="center">
+ <img src="images/vgg11_layer2_channels81-74-2-30-7-19-122-100-83.png" width=512>
+</p>
 
-***Figure 4**: Images that maximally activate 9 different channels of convolutional layer 1 of the U-Net semantic segmentation encoder*
+***Figure 4**: Images that maximally activate 9 different channels of convolutional layer 2 of the U-Net semantic segmentation encoder*
+<p align="center">
+ <img src="images/unet_layer2_channels101-23-13-109-99-78-39-18-30.png" width=512>
+</p>
 
-***Figure 5**: Images that maximally activate 9 different channels of convolutional layer 1 of the VGG-11 classification encoder*
+***Figure 5**: Images that maximally activate 9 different channels of convolutional layer 7 of the VGG-11 classification encoder*
+<p align="center">
+ <img src="images/vgg11_layer7_channels211-48-368-11-43-148-405-187-178.png" width=512>
+</p>
 
-***Figure 6**: Images that maximally activate 9 different channels of convolutional layer 1 of the U-Net semantic segmentation encoder*
+***Figure 6**: Images that maximally activate 9 different channels of convolutional layer 7 of the U-Net semantic segmentation encoder*
+<p align="center">
+ <img src="images/unet_layer7_channels68-384-488-365-51-484-118-46-317.png" width=512>
+</p>
 
 <a name="results"></a>
 ## Summary of Results
@@ -169,7 +181,7 @@ how the channel matching is performed. Values can be 'normal', 'blur', 'dilation
 ```
 python main.py path/to/activations --mode view_activations
 ```
-This will create a folder called `activation_visuaalizations` and will place photos showing activations for both VGG-11
+This will create a folder called `activation_visualizations` and will place photos showing activations for both VGG-11
 and UNet. Can use parameters `--start_layer` and `--stop_layer` to specify which layer to start and stop with visualizations.
 
 Viewing activations provides a grid of size 3x2 images. The left column images are derived from the VGG-11 classifier. 
