@@ -9,6 +9,8 @@ from torch.autograd import Variable
 import numpy as np
 import cv2
 
+from utils.data_loader import load_data
+
 
 def upscale_image(image, upscale_size):
     """
@@ -57,8 +59,32 @@ class LayerActivationAnalysis():
 
         return np.unique(np.nonzero(filter_activations)[0])
 
-    def get_max_activating_image(self, channel_index, initial_img_size=56, upscaling_steps=12, upscaling_factor=1.2,
-                                 lr=0.01, update_steps=15, verbose=False):
+      
+    def get_avg_activated_channels(self, layers, data_path, data_type, sample_size=50):
+        '''
+        Computes the average number number of channels activated in each layer
+        by inputs from the specified dataset.
+        '''
+        layer_activations = []
+        for layer in layers:
+            activations = LayerActivations(layer)
+            layer_activations.append(activations)
+
+        dataset = load_data(data_path, data_type)
+        sampler = torch.utils.data.SubsetRandomSampler(np.arange(sample_size))
+        dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, sampler=sampler)
+
+        avg_activated_channels = np.zeros(len(layers))
+        for x, _ in dataloader:
+            _ = self.model(x)
+            channels_activations = [l.activations[0].detach().numpy() for l in layer_activations]
+            avg_activated_channels += [len(np.unique(np.nonzero(c)[0])) for c in channels_activations]
+        avg_activated_channels = avg_activated_channels / sample_size
+
+        return avg_activated_channels
+
+
+    def get_max_activating_image(self, channel_index, initial_img_size=56, upscaling_steps=12, upscaling_factor=1.2, lr=0.01, update_steps=15, verbose=False):
         """
         Finds the input image that maximally activates the output channel (with index channel_index)
         of the convolutional layer.
