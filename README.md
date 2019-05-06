@@ -6,6 +6,8 @@
 #### Contents
 - [Project Overview](#overview)
 - [Comparison Methods](#analysis)
+  * [Visualizing Activations](#activ)
+  * [Visualizing Maximally Activating Images](#max_activ)
 - [Summary of Results](#results)
 - [Getting Started](#start)
 - [Setup](#setup)
@@ -28,6 +30,11 @@ The two networks that we used for this analysis were a VGG-11 classification net
 
 <a name="analysis"></a>
 ## Comparison Methods
+
+<a name="activ"></a>
+## Visualizing Activations
+<a name="max_activ"></a>
+## Visualizing Maximally Activating Images
 
 <a name="results"></a>
 ## Summary of Results
