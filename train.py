@@ -3,7 +3,7 @@ import time
 import datetime as dt
 
 
-def train(model, dataloader, criterion, optimizer, num_epochs, checkpoint_path=None):
+def train(model, dataloader, criterion, optimizer, num_epochs, checkpoint_path=None, save_path=None):
     since = time.time()
     min_loss = float('inf')
 
@@ -49,7 +49,7 @@ def train(model, dataloader, criterion, optimizer, num_epochs, checkpoint_path=N
 
         print('Training Loss: {}'.format(epoch_loss))
 
-        if epoch_loss < min_loss and checkpoint_path is not None:
+        if epoch_loss < min_loss and save_path is not None:
             min_loss = epoch_loss
 
             torch.save({
@@ -57,7 +57,7 @@ def train(model, dataloader, criterion, optimizer, num_epochs, checkpoint_path=N
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': epoch_loss,
-            }, './' + checkpoint_path + '/unet.tar')
+            }, './' + save_path + '/unet.tar')
 
         print()
 

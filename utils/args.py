@@ -62,6 +62,17 @@ def get_cli_arguments():
                         help='Do not resize input images. Results in significantly more memory needing to be allocated.'
                              'Default=False')
 
+    parser.add_argument('--pretrained',
+                        action='store_true',
+                        default=False,
+                        help='Train the UNet with a pretrained VGG11 encoder. Weights of the encoder will not be'
+                             'updated.')
+
+    parser.add_argument('--savedir',
+                        type=str,
+                        default=None,
+                        help='Relative path to location to save checkpoint')
+
     parser.add_argument('--type',
                         choices=['normal', 'blur', 'dilation', 'pooling'],
                         default='normal',
