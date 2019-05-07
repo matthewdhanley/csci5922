@@ -44,104 +44,17 @@ def save_image_grid(image_arrays, destination, width=16, height=16):
     plt.savefig(destination, transparent=True, bbox_inches='tight', pad_inches=0)
     plt.close()
 
-def get_cli_arguments():
-    parser = argparse.ArgumentParser(description='Analyze encoder module filters of a trained model')
 
-    parser.add_argument('--unet',
-                        action='store_true',
-                        help='Analyze UNet encoder')
-
-    parser.add_argument('--checkpoint',
-                        required='--unet' in sys.argv,
-                        type=str,
-                        help='Path to UNet model checkpoint')
-
-    parser.add_argument('--vgg11',
-                        action='store_true',
-                        help='Analyze VGG11 encoder (pre-trained on ImageNet)')
-
-    parser.add_argument('--layer',
-                        type=int,
-                        default=8,
-                        choices=[1,2,3,4,5,6,7,8],
-                        help='Layer of encoder to analyze')
-
-    parser.add_argument('--channels',
-                        type=int,
-                        nargs='*',
-                        help='Layer output channels to visualize')
-
-    parser.add_argument('--img_size',
-                        type=int,
-                        default=56,
-                        help='Initial size of the randomly initialized image')
-
-    parser.add_argument('--upscale_steps',
-                        type=int,
-                        default=12,
-                        help='Number of upscaling steps while optimizing the maximally activating image')
-
-    parser.add_argument('--upscale_factor',
-                        type=float,
-                        default=1.2,
-                        help='Upscaling factor at each upscaling step')
-
-    parser.add_argument('--lr',
-                        type=float,
-                        default=0.01,
-                        help='Learning rate for image optimization update step')
-
-    parser.add_argument('--steps',
-                        type=int,
-                        default=15,
-                        help='Number of optimization update steps at each upscaling step')
-
-    parser.add_argument('--grid',
-                        action='store_true',
-                        help='Visualize multiple output channels as a grid')
-
-    parser.add_argument('-o', '--out',
-                        type=str,
-                        default='./',
-                        help='Path to write visualizations to')
-
-    parser.add_argument('--data_path',
-                        type=str,
-                        help='Relative path to data directory containing either the CityScapes'
-                             'gtFine and leftImg8bit directories or tinyimagenet train directory')
-
-    parser.add_argument('--dataset',
-                        type=str,
-                        choices=['cityscapes', 'imagenet'],
-                        default='cityscapes',
-                        help='Specify which dataset is located at path argument. Default: cityscapes')
-
-    parser.add_argument('--sample_size',
-                        type=int,
-                        default=50,
-                        help='Number of input samples to use from the specified dataset'
-                             'when computing average number of activated channels')
-
-    parser.add_argument('-v', '--verbose',
-                        action='store_true',
-                        help='Output status of image optimization processes')
-    return parser.parse_args()
-
-
-if __name__=='__main__':
-    args = get_cli_arguments()
-
-    if args.unet:
-        if not os.path.exists(args.checkpoint):
+def channel_vis_driver(model_name, checkpoint_path, data_path, dataset, conv_layer, channels, init_img_size, upscale_steps, upscale_factor, lr, update_steps, grid, out_path, verbose):
+    if model_name == 'unet':
+        if not os.path.exists(checkpoint_path):
             sys.exit('Specified checkpoint cannot be found')
 
-        checkpoint = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
+        checkpoint = torch.load(checkpoint_path, map_location=lambda storage, loc: storage)
         model = UNet(num_classes=len(datasets.Cityscapes.classes), encoder_only=True)
         model.load_state_dict(checkpoint['model_state_dict'])
-        model_name = 'unet'
-    elif args.vgg11:
+    elif model_name == 'vggmod':
         model = models.vgg11(pretrained=True)
-        model_name = 'vgg11'
     else:
         sys.exit('No model provided, please specify --unet or --vgg11 to analyze the UNet or VGG11 encoder, respectively')
 
@@ -150,16 +63,14 @@ if __name__=='__main__':
     for param in model.parameters():
         param.requires_grad_(False)
 
-    layer = get_conv_layer(model, args.layer)
+    layer = get_conv_layer(model, conv_layer)
 
     analyzer = LayerActivationAnalysis(model, layer)
 
 
     # Save a grid of channel activation visualizations
-    if args.grid:
-        if args.channels is not None:
-            channels = args.channels
-        else:
+    if grid:
+        if not channels:
             # Get a random sample of 9 activated channels
             channels = analyzer.get_activated_filter_indices()
             np.random.shuffle(channels)
@@ -167,48 +78,48 @@ if __name__=='__main__':
 
         imgs = []
         for i, channel in enumerate(channels):
-            if args.verbose:
+            if verbose:
                 print('Generating image {} of {}...'.format(i+1, len(channels)))
 
             img = analyzer.get_max_activating_image(channel,
-                                                    initial_img_size=args.img_size,
-                                                    upscaling_steps=args.upscale_steps,
-                                                    upscaling_factor=args.upscale_factor,
-                                                    lr=args.lr,
-                                                    update_steps=args.steps,
-                                                    verbose=args.verbose)
+                                                    initial_img_size=init_img_size,
+                                                    upscaling_steps=upscale_steps,
+                                                    upscaling_factor=upscale_factor,
+                                                    lr=lr,
+                                                    update_steps=update_steps,
+                                                    verbose=verbose)
 
             imgs.append(img)
         channel_string = '-'.join(str(channel_id) for channel_id in channels)
-        output_dest = os.path.join(args.out, '{}_layer{}_channels{}.png'.format(model_name, args.layer, channel_string))
+        output_dest = os.path.join(out_path, '{}_layer{}_channels{}.png'.format(model_name, conv_layer, channel_string))
         save_image_grid(imgs, output_dest)
 
     # Save a channel activation visualization for each specified channel
-    elif args.channels is not None:
-        for channel in args.channels:
+    elif channels is not None:
+        for channel in channels:
 
             img = analyzer.get_max_activating_image(channel,
-                                                    initial_img_size=args.img_size,
-                                                    upscaling_steps=args.upscale_steps,
-                                                    upscaling_factor=args.upscale_factor,
-                                                    lr=args.lr,
-                                                    update_steps=args.steps,
-                                                    verbose=args.verbose)
+                                                    initial_img_size=init_img_size,
+                                                    upscaling_steps=upscale_steps,
+                                                    upscaling_factor=upscale_factor,
+                                                    lr=lr,
+                                                    update_steps=update_steps,
+                                                    verbose=verbose)
 
-            output_dest = os.path.join(args.out, '{}_layer{}_channel{}.png'.format(model_name, args.layer, channel))
+            output_dest = os.path.join(out_path, '{}_layer{}_channel{}.png'.format(model_name, conv_layer, channel))
             save_image(img, output_dest)
 
     else:
         # Compute the average number number of channels activated in each layer
-        if args.data_path and args.dataset:
+        if data_path and dataset:
             layers = [get_conv_layer(model, i) for i in [1,2,3,4,5,6,7,8]]
-            avg = analyzer.get_avg_activated_channels(layers, args.data_path, args.dataset, args.sample_size)
+            avg = analyzer.get_avg_activated_channels(layers, data_path, dataset, 100)
             print('Average number of channels activated per convolutional layer: {}'.format(avg))
 
         # Output the channels activated by a randomly initialize image
         else:
-            activated_channels = analyzer.get_activated_filter_indices(initial_img_size=args.img_size)
-            print('Output channels in conv layer {} activated by random image input:'.format(args.layer))
+            activated_channels = analyzer.get_activated_filter_indices(initial_img_size=init_img_size)
+            print('Output channels in conv layer {} activated by random image input:'.format(conv_layer))
             print(activated_channels)
             print()
             print('(Total of {} activated channels)'.format(len(activated_channels)))

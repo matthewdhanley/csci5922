@@ -19,12 +19,13 @@ def get_cli_arguments():
                         help='Specify which dataset is located at path argument. Default: cityscapes')
 
     parser.add_argument("--mode", "-m",
-                        choices=['train', 'test', 'activations', 'compare_activations', 'view_activations'],
+                        choices=['train', 'test', 'activations', 'compare_activations', 'view_activations', 'view_max_activating'],
                         default='train',
                         help="train: performs training. Test tests the model. activations saves the activations. Must "
                              "use argument --model with activations keyword. compare_activations comapres the "
                              "activations in the specified folder. view_activations views the activations in the"
-                             "specified folder. Default: train")
+                             "specified folder. view_max_activating saves visualizations of images that maximally"
+                             "activate specified convolutional channels. Default: train")
 
     parser.add_argument("--model",
                         choices=['unet', 'vggmod', 'both'],
@@ -77,6 +78,46 @@ def get_cli_arguments():
                         choices=['normal', 'blur', 'dilation', 'pooling'],
                         default='normal',
                         help='Type of comparison to use for channel matching.')
+
+    # Arguments for visualizing maximally activating image_tensor
+    parser.add_argument('--conv_layer',
+                        type=int,
+                        default=8,
+                        choices=[1,2,3,4,5,6,7,8],
+                        help='Convolutional layer to analyze')
+
+    parser.add_argument('--channels',
+                        type=int,
+                        nargs='*',
+                        help='Channels of specified layer to maximally activate')
+
+    parser.add_argument('--img_size',
+                        type=int,
+                        default=56,
+                        help='Initial size of the randomly initialized image (default 56)')
+
+    parser.add_argument('--upscale_steps',
+                        type=int,
+                        default=12,
+                        help='Number of upscaling steps while optimizing the maximally activating image (default 12)')
+
+    parser.add_argument('--upscale_factor',
+                        type=float,
+                        default=1.2,
+                        help='Upscaling factor at each upscaling step (default 1.2)')
+
+    parser.add_argument('--opt_steps',
+                        type=int,
+                        default=15,
+                        help='Number of image optimization update steps at each step of upscaling')
+
+    parser.add_argument('--grid',
+                        action='store_true',
+                        help='Visualize maximally activating image for multiple output channels as a grid')
+
+    parser.add_argument('-v', '--verbose',
+                        action='store_true',
+                        help='Output status of image optimization processes')
 
     # Hyperparameters.
     parser.add_argument('-b', '--batch_size',
