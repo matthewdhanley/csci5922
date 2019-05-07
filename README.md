@@ -79,6 +79,18 @@ Provided below are sample visualiations that accomplish this task.
 
 <a name="results"></a>
 ## Summary of Results
+In early convolutional layers, the channels of VGG-11 and the U-Net encoders learned similar features (simple shapes and patterns such as edges and corners).  This observation was supported by the edge and corner patterns displayed in the activation visualizations and the simple striations depicted in the maximally activating images.  Proceeding the convolutional filters learned in the early layers, visualizations from layers deeper in the two encoders revealed that the two networks learned distinctly different features.  We observed that the VGG-11 filters (from the classification network) specialize in detecting distinct features that help identify subsets of image classes, whereas the U-Net filters appear to learn a blurred representation of the image thus preserving details of the original image.  This was most noticeable while inspecting the images that maximally activate channels of deeper layers of the encoder.  The images that maximally activate the channels of the VGG-11 encoder yield insight into the class of the object featured in the image (*Figure 7*). This coherency is not immediately observable in the images that maximally activate the corresponding layer of the U-Net encoder (*Figure 8*).  Given these findings, we arrived at the conclusion that the task of semantic segmentation leads the encoder to learn inherently different features from those learned when the same architecture is trained for image classification.
+
+As an additional experiment, we attempted to test whether an encoder trained for image classification can be substituted into the encoder portion of a fully convolutional network for semantic segmentation.  In order to accomplish this task, we created a U-Net model that featured a VGG-11 encoder (pre-trained on ImageNet) and then trained the network for semantic segmentation on the Cityscapes dataset while keeping the encoder's weights fixed.  The performances of this network and a U-Net (with the same architecure) trained from scratch were finally compared.  The performance of these networks on the Cityscapes validation data are provided below in Table 1.  Interestingly, the two networks performed very similarly.  Given the limited evaluation, we were unable to confidently determine if this encoder substitution had a significant impact on the network's performance.
+
+***Table 1**: Comparisons of segmentation performance on Cityscaped validation data.*
+
+|                  | In Situ Model | Pre-trained Encoder Model | Untrained Model |
+|------------------|---------------|---------------------------|-----------------|
+| Overall Accuracy |    84.90%     |        84.25%             |    66.33%       |
+| Mean Recall      |    38.56%     |        38.00%             |    17.62%       |
+| Mean IoU         |    31.39%     |        30.90%             |    13.62%       |
+
 
 <a name="start"></a>
 ## Getting Started
