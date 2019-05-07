@@ -15,6 +15,7 @@ from retrieve_activations import retrieve_activations
 from utils.set_parameter_required_grad import set_parameter_required_grad
 from utils.load_activations import load_activations
 from view_activs import visualize_batch
+from channel_vis import channel_vis_driver
 import numpy as np
 
 
@@ -31,7 +32,7 @@ def main():
         dataset = load_data(args.path, args.dataset, resize=~args.no_resize)
 
         if args.subset:
-            sampler = torch.utils.data.SubsetRandomSampler(np.arange(10))
+            sampler = torch.utils.data.SubsetRandomSampler(np.arange(50))
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=sampler)
         else:
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
@@ -53,7 +54,7 @@ def main():
         dataset = load_data(args.path, args.dataset, resize=~args.no_resize, split='val')
 
         if args.subset:
-            sampler = torch.utils.data.SubsetRandomSampler(np.arange(10))
+            sampler = torch.utils.data.SubsetRandomSampler(np.arange(50))
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=sampler)
         else:
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
@@ -111,6 +112,11 @@ def main():
         file_1 = os.path.join(args.path, 'VGGmod_activations')
         file_2 = os.path.join(args.path, 'UNet_activations')
         match_channels(file_1, file_2, args.type)
+
+    if args.mode == 'view_max_activating':
+        channel_vis_driver(args.model, args.checkpoint, args.path, args.dataset, args.conv_layer,
+                           args.channels, args.img_size, args.upscale_steps, args.upscale_factor,
+                           args.learning_rate, args.opt_steps, args.grid, args.path, args.verbose)
 
 
 if __name__ == "__main__":
