@@ -207,9 +207,22 @@ zero. The right is the opposite, also clipping values less than zero.
 
 <a name="channel_vis"></a>
 ## Visualizing Convolutional Channels
+Save the image that maximally activates output channel 23 of convolutional layer 3 of the U-Net encoder:
 ```
-python main.py path --mode ... #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+python main.py path/to/save/output --mode view_max_activating --model unet --checkpoint unet.tar --conv_layer 2 --channels 23 -lr 0.01 --verbose
 ```
+
+Save the image that maximally activates output channel 168 of convolutional layer 7 of the VGG-11 encoder:
+```
+python main.py path/to/save/output --mode view_max_activating --model vggmod --conv_layer 7 --channels 168 -lr 0.01 --verbose
+```
+
+Save a 3x3 grid of images that maximally activate 9 output channels of convolutional layer 8 of the VGG-11 encoder:
+```
+python main.py path/to/save/output --mode view_max_activating --model vggmod --conv_layer 8 -lr 0.01 --grid --verbose
+```
+
+These commands will save a .png file of the image that maximally activates the specified channels of a given convolutional layer.  The convolutional layer and channel to be visualized can be specified with the ```conv_layer``` and ```channels``` arguments, respectively.  Specifying the ```--grid``` argument will generated a 3x3 array of images, each of which depicts an image that maximally activates an output channel of the specified layer.
 
 <a name="validation"></a>
 ## Validating models and measuring performance
