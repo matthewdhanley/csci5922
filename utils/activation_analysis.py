@@ -59,8 +59,8 @@ class LayerActivationAnalysis():
 
         return np.unique(np.nonzero(filter_activations)[0])
 
-      
-    def get_avg_activated_channels(self, layers, data_path, data_type, sample_size=50):
+
+    def get_avg_activated_channels(self, layers, data_path, data_type, sample_size=100):
         '''
         Computes the average number number of channels activated in each layer
         by inputs from the specified dataset.
