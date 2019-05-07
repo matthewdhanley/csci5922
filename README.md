@@ -155,12 +155,12 @@ folders are folders named after the city that the data was taken. These folders 
 ## Training
 In situ model training:
 ```
-python main.py cityscapes_path/ --mode train --save_dir checkpoints/ --file unet.tar
+python main.py cityscapes_path/ --mode train --savedir checkpoints/ --file unet.tar
 ```
 
 Training with pretrained VGG-11 encoder:
 ```
-python main.py cityscapes_path/ --mode train --save_dir checkpoints/ --file unet.tar --pretrained
+python main.py cityscapes_path/ --mode train --savedir checkpoints/ --file unet.tar --pretrained
 ```
 This latter configuration loads the weights for the VGG-11 encoder that was trained on ImageNet then freezes those layers
 as it trains.
