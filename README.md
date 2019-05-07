@@ -19,6 +19,7 @@
   * [Channel Matching](#channel_match)
   * [View Activations](#activations_view)
 - [Visualizing Maximally Activating Images](#max_channel_vis)
+- [Future Work](#future-work)
 - [References](#references)
 
 <a name="overview"></a>
@@ -228,6 +229,19 @@ These commands will save a .png file of the image that maximally activates the s
 ```
 python main.py path/to/dataset --mode test --checkpoint model.tar
 ```
+
+<a name="future-work"></a>
+## Future Work
+There are a number of directions this work could go in the future. We would have liked to train our networks on larger and more diverse datasets to get it on the order of the dataset the VGG-11 classifier was trained on in ordert to get a more fair comparison. 
+
+We also think it's likely that the skip connections in the network make most of the layers in the encoder insignificant (as compares to the VGG-11 classifier) based on their maximally activated inputs. Thus, we would like to do the same analysis but without the skip connections to see what kind of performance and activations occur.
+
+In order to get more results to draw conclusions, we would have liked to train on other standard architectures such as AlexNet, DeepLab, etc, using the same methodologies.
+
+In addition, we feel it would be very beneficial to perform activation comparison with more visualization techniques such as deconvolutional layers.
+
+After these initial qualitative results, further steps could be taken to find quantitative comparisons of hidden layer activations along with visualizations in order to try to characterize behavior.
+
 
 <a name="references"></a>
 ## References
