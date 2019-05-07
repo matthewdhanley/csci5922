@@ -18,7 +18,7 @@
   * [Save Activations](#activations_save)
   * [Channel Matching](#channel_match)
   * [View Activations](#activations_view)
-- [Visualizing Convolutional Channels](#channel_vis)
+- [Visualizing Maximally Activating Images](#max_channel_vis)
 - [References](#references)
 
 <a name="overview"></a>
@@ -204,8 +204,8 @@ to see what features the filter is looking for in that specific channel and laye
 between the VGG-11 activations and in situ UNet activations. The left will be VGG-11 minus UNet, clipping values below
 zero. The right is the opposite, also clipping values less than zero.
 
-<a name="channel_vis"></a>
-## Visualizing Convolutional Channels
+<a name="max_channel_vis"></a>
+## Visualizing Maximally Activating Images
 Save the image that maximally activates output channel 23 of convolutional layer 3 of the U-Net encoder:
 ```
 python main.py path/to/save/output --mode view_max_activating --model unet --checkpoint unet.tar --conv_layer 2 --channels 23 -lr 0.01 --verbose
