@@ -231,4 +231,17 @@ python main.py path/to/dataset --mode test --checkpoint model.tar
 
 <a name="references"></a>
 ## References
-TODO
+
+[U-Net: Convolutional Networks for Biomedical Image Segmentation](https://arxiv.org/abs/1505.04597) Olaf Ronneberger, Philipp Fischer, Thomas Brox
+
+[Visualizing and Understanding Convolutional Networks](https://arxiv.org/abs/1311.2901) Matthew D Zeiler, Rob Fergus
+
+[TernausNet: U-Net with VGG11 Encoder Pre-Trained on ImageNet for Image Segmentation](https://arxiv.org/abs/1801.05746) Vladimir Iglovikov, Alexey Shvets
+
+[Inceptionism: Going Deeper into Neural Networks](https://ai.googleblog.com/2015/06/inceptionism-going-deeper-into-neural.html) Alexander Mordvintsev, Christopher Olah, and Mike Tyka
+
+[Visualizing what ConvNets learn](http://cs231n.github.io/understanding-cnn/)
+
+[How to visualize convolutional features in 40 lines of code](https://towardsdatascience.com/how-to-visualize-convolutional-features-in-40-lines-of-code-70b7d87b0030) Fabio M. Graetz
+
+[Understanding Neural Networks Through Deep Visualization](http://yosinski.com/deepvis) Jason Yosinski, Jeff Clune, Anh Nguyen, Thomas Fuchs, and Hod Lipson
